@@ -16,5 +16,6 @@ def test_app_runs_example_end_to_end(monkeypatch):
     assert not at.exception
     at.button[0].click().run()
     assert not at.exception
-    labels = [m.label for m in at.metric]
-    assert "Findings" in labels and int(at.metric[labels.index("Findings")].value) > 10
+    state = at.session_state["result"][0]
+    assert len(state.findings) > 10
+    assert any("Risks found" in m.value for m in at.markdown)
