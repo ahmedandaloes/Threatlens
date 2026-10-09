@@ -1,0 +1,39 @@
+{
+  "name": "Masar HR & Payroll Portal",
+  "description": "Cloud HR and payroll portal for a 350-employee Saudi contracting company. Employees view payslips, request leave and upload documents; HR manages contracts, Iqama/ID expiry and salaries; Finance generates the monthly WPS payroll file for the bank and syncs headcount with government platforms. Hosted on a KSA cloud region.",
+  "industry": "Fintech / HR SaaS",
+  "region": "Saudi Arabia (Riyadh)",
+  "users": "350 employees, 6 HR & finance staff",
+  "compliance": ["Saudi PDPL (SDAIA)", "NCA Essential Cybersecurity Controls (ECC-2:2024)", "Wage Protection System (WPS / Mudad) payroll file requirements"],
+  "global_controls": ["tls", "waf", "backups", "monitoring"],
+  "components": [
+    {"id": "employee", "name": "Employee", "type": "user", "zone": "internet"},
+    {"id": "hr_staff", "name": "HR / Finance Officer", "type": "user", "zone": "internet"},
+    {"id": "portal", "name": "Employee Self-Service Portal", "type": "web_frontend", "tech": "Angular", "data": ["pii", "financial", "credentials"], "auth": "session", "internet_facing": true, "controls": ["tls", "csp"]},
+    {"id": "api", "name": "HR Core API", "type": "api", "zone": "dmz", "tech": "ASP.NET Core 8", "data": ["pii", "national_id", "financial", "credentials"], "auth": "jwt", "internet_facing": true, "features": ["file_upload"], "controls": ["tls", "rbac", "input_validation", "audit_logging", "logging"]},
+    {"id": "hr_admin", "name": "HR Admin Console", "type": "admin_panel", "tech": "Angular", "data": ["pii", "national_id", "financial"], "auth": "sso", "internet_facing": true, "zone": "dmz", "controls": ["tls", "mfa", "csp"]},
+    {"id": "entra", "name": "Microsoft Entra ID (SSO)", "type": "identity_provider", "data": ["credentials"], "auth": "oauth", "controls": ["mfa"]},
+    {"id": "payroll", "name": "Payroll Engine", "type": "service", "tech": ".NET worker", "data": ["financial", "national_id", "pii"], "auth": "none", "zone": "internal"},
+    {"id": "sql", "name": "HR Database", "type": "database", "tech": "Azure SQL", "data": ["pii", "national_id", "financial"], "controls": ["encryption_at_rest", "backups"]},
+    {"id": "docs", "name": "Employee Documents Blob", "type": "object_storage", "tech": "Azure Blob Storage", "data": ["national_id", "pii"], "controls": ["encryption_at_rest", "private_bucket"]},
+    {"id": "attendance", "name": "Legacy Attendance Terminals", "type": "service", "tech": "Biometric terminals (vendor API)", "data": ["pii"], "auth": "none", "zone": "internal"},
+    {"id": "bank_sftp", "name": "Bank Payroll SFTP (WPS file)", "type": "third_party", "category": "banking", "data": ["financial", "national_id"], "auth": "api_key"},
+    {"id": "gov", "name": "Government HR Platform Integration (e.g. Mudad / GOSI)", "type": "third_party", "category": "government", "data": ["pii", "national_id", "financial"], "auth": "api_key", "controls": ["dpa"]},
+    {"id": "email", "name": "Transactional Email (SendGrid)", "type": "third_party", "category": "messaging", "data": ["pii"], "auth": "api_key", "controls": ["otp_limits"]}
+  ],
+  "flows": [
+    {"id": "F01", "from": "employee", "to": "portal", "protocol": "https", "data": ["pii", "credentials"]},
+    {"id": "F02", "from": "portal", "to": "api", "protocol": "https", "data": ["pii", "financial"], "auth": "jwt"},
+    {"id": "F03", "from": "hr_staff", "to": "hr_admin", "protocol": "https", "data": ["pii", "national_id", "financial"]},
+    {"id": "F04", "from": "hr_admin", "to": "entra", "protocol": "https", "data": ["credentials"], "auth": "oauth"},
+    {"id": "F05", "from": "hr_admin", "to": "api", "protocol": "https", "data": ["pii", "national_id", "financial"], "auth": "jwt"},
+    {"id": "F06", "from": "api", "to": "sql", "protocol": "tcp/tls", "data": ["pii", "national_id", "financial"], "auth": "password"},
+    {"id": "F07", "from": "api", "to": "docs", "protocol": "https", "data": ["national_id", "pii"], "auth": "api_key"},
+    {"id": "F08", "from": "api", "to": "payroll", "protocol": "amqp", "data": ["financial", "national_id"], "description": "Run payroll job"},
+    {"id": "F09", "from": "payroll", "to": "sql", "protocol": "tcp/tls", "data": ["financial"], "auth": "password"},
+    {"id": "F10", "from": "payroll", "to": "bank_sftp", "protocol": "sftp", "data": ["financial", "national_id"], "auth": "api_key", "description": "Upload monthly WPS salary file"},
+    {"id": "F11", "from": "api", "to": "gov", "protocol": "https", "data": ["pii", "national_id", "financial"], "auth": "api_key"},
+    {"id": "F12", "from": "attendance", "to": "api", "protocol": "http", "data": ["pii"], "description": "Push clock-in events (vendor only supports HTTP)"},
+    {"id": "F13", "from": "api", "to": "email", "protocol": "https", "data": ["pii"], "auth": "api_key", "description": "Payslip-ready notifications"}
+  ]
+}

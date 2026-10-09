@@ -1,0 +1,2345 @@
+{
+  "tool": "ThreatLens",
+  "version": "1.0.0",
+  "mode": "offline",
+  "summary": {
+    "system": "Nile Threads E-commerce Store",
+    "components": 13,
+    "flows": 14,
+    "endpoints": 16,
+    "boundary_crossings": 12,
+    "findings": 43,
+    "by_severity": {
+      "Critical": 10,
+      "High": 22,
+      "Medium": 11,
+      "Low": 0
+    },
+    "by_stride": {
+      "Spoofing": 15,
+      "Tampering": 5,
+      "Repudiation": 4,
+      "Information Disclosure": 13,
+      "Denial of Service": 2,
+      "Elevation of Privilege": 4
+    },
+    "owasp_categories": [
+      "A01:2021 Broken Access Control",
+      "A02:2021 Cryptographic Failures",
+      "A03:2021 Injection",
+      "A04:2021 Insecure Design",
+      "A05:2021 Security Misconfiguration",
+      "A06:2021 Vulnerable and Outdated Components",
+      "A07:2021 Identification and Authentication Failures",
+      "A08:2021 Software and Data Integrity Failures",
+      "A09:2021 Security Logging and Monitoring Failures",
+      "A10:2021 Server-Side Request Forgery"
+    ],
+    "unique_cwes": [
+      "CWE-79",
+      "CWE-200",
+      "CWE-209",
+      "CWE-250",
+      "CWE-285",
+      "CWE-287",
+      "CWE-306",
+      "CWE-307",
+      "CWE-308",
+      "CWE-319",
+      "CWE-345",
+      "CWE-359",
+      "CWE-434",
+      "CWE-524",
+      "CWE-532",
+      "CWE-602",
+      "CWE-613",
+      "CWE-639",
+      "CWE-732",
+      "CWE-770",
+      "CWE-778",
+      "CWE-798",
+      "CWE-799",
+      "CWE-840",
+      "CWE-862",
+      "CWE-863",
+      "CWE-918",
+      "CWE-1104"
+    ],
+    "remediation_actions": 25,
+    "effort_days": 43.0,
+    "effort_now_days": 29.5,
+    "mode": "offline"
+  },
+  "inventory": {
+    "assets": [
+      {
+        "id": "shopper",
+        "name": "Shopper",
+        "type": "user",
+        "zone": "internet",
+        "tech": "",
+        "data": [],
+        "sensitivity": 2,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "ops",
+        "name": "Ops / Admin Staff",
+        "type": "user",
+        "zone": "internet",
+        "tech": "",
+        "data": [],
+        "sensitivity": 2,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "storefront",
+        "name": "Storefront",
+        "type": "web_frontend",
+        "zone": "dmz",
+        "tech": "Next.js 14 on Vercel",
+        "data": [
+          "pii",
+          "credentials"
+        ],
+        "sensitivity": 5,
+        "internet_facing": true,
+        "auth": "jwt",
+        "controls": [
+          "tls",
+          "csp"
+        ]
+      },
+      {
+        "id": "api",
+        "name": "Shop API",
+        "type": "api",
+        "zone": "dmz",
+        "tech": "Node.js / Express on AWS EC2",
+        "data": [
+          "pii",
+          "payment",
+          "credentials"
+        ],
+        "sensitivity": 5,
+        "internet_facing": true,
+        "auth": "jwt",
+        "controls": [
+          "tls",
+          "logging",
+          "input_validation"
+        ]
+      },
+      {
+        "id": "admin",
+        "name": "Admin Panel",
+        "type": "admin_panel",
+        "zone": "dmz",
+        "tech": "React-Admin",
+        "data": [
+          "pii",
+          "payment"
+        ],
+        "sensitivity": 5,
+        "internet_facing": true,
+        "auth": "password",
+        "controls": [
+          "tls"
+        ]
+      },
+      {
+        "id": "worker",
+        "name": "Order Fulfilment Worker",
+        "type": "service",
+        "zone": "internal",
+        "tech": "Node.js worker",
+        "data": [
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "pg",
+        "name": "Orders DB",
+        "type": "database",
+        "zone": "data",
+        "tech": "Amazon RDS PostgreSQL",
+        "data": [
+          "pii",
+          "payment"
+        ],
+        "sensitivity": 5,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": [
+          "encryption_at_rest",
+          "backups"
+        ]
+      },
+      {
+        "id": "redis",
+        "name": "Cart & Session Cache",
+        "type": "cache",
+        "zone": "data",
+        "tech": "ElastiCache Redis",
+        "data": [
+          "credentials",
+          "pii"
+        ],
+        "sensitivity": 5,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "s3",
+        "name": "Product & Return-Photos Bucket",
+        "type": "object_storage",
+        "zone": "data",
+        "tech": "Amazon S3",
+        "data": [
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": [
+          "encryption_at_rest"
+        ]
+      },
+      {
+        "id": "paymob",
+        "name": "Paymob (cards & wallets)",
+        "type": "third_party",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "payment",
+          "pii"
+        ],
+        "sensitivity": 5,
+        "internet_facing": false,
+        "auth": "api_key",
+        "controls": []
+      },
+      {
+        "id": "fawry",
+        "name": "Fawry Pay",
+        "type": "third_party",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "payment",
+          "pii"
+        ],
+        "sensitivity": 5,
+        "internet_facing": false,
+        "auth": "api_key",
+        "controls": []
+      },
+      {
+        "id": "bosta",
+        "name": "Bosta Shipping API",
+        "type": "third_party",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "api_key",
+        "controls": []
+      },
+      {
+        "id": "sms",
+        "name": "SMS OTP Provider",
+        "type": "third_party",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "api_key",
+        "controls": []
+      }
+    ],
+    "trust_zones": [
+      {
+        "zone": "internet",
+        "label": "Internet (untrusted)",
+        "members": [
+          "shopper",
+          "ops"
+        ]
+      },
+      {
+        "zone": "dmz",
+        "label": "DMZ / public edge",
+        "members": [
+          "storefront",
+          "api",
+          "admin"
+        ]
+      },
+      {
+        "zone": "internal",
+        "label": "Internal application zone",
+        "members": [
+          "worker"
+        ]
+      },
+      {
+        "zone": "data",
+        "label": "Data zone",
+        "members": [
+          "pg",
+          "redis",
+          "s3"
+        ]
+      },
+      {
+        "zone": "third_party",
+        "label": "Third-party providers",
+        "members": [
+          "paymob",
+          "fawry",
+          "bosta",
+          "sms"
+        ]
+      }
+    ],
+    "boundary_crossings": [
+      {
+        "flow": "F01",
+        "from": "shopper",
+        "to": "storefront",
+        "boundary": "internet -> dmz",
+        "protocol": "https",
+        "data": [
+          "pii",
+          "credentials"
+        ]
+      },
+      {
+        "flow": "F03",
+        "from": "ops",
+        "to": "admin",
+        "boundary": "internet -> dmz",
+        "protocol": "https",
+        "data": [
+          "pii",
+          "credentials"
+        ]
+      },
+      {
+        "flow": "F05",
+        "from": "api",
+        "to": "pg",
+        "boundary": "dmz -> data",
+        "protocol": "tcp/tls",
+        "data": [
+          "pii",
+          "payment"
+        ]
+      },
+      {
+        "flow": "F06",
+        "from": "api",
+        "to": "redis",
+        "boundary": "dmz -> data",
+        "protocol": "tcp",
+        "data": [
+          "credentials",
+          "pii"
+        ]
+      },
+      {
+        "flow": "F07",
+        "from": "api",
+        "to": "s3",
+        "boundary": "dmz -> data",
+        "protocol": "https",
+        "data": [
+          "pii"
+        ]
+      },
+      {
+        "flow": "F08",
+        "from": "api",
+        "to": "paymob",
+        "boundary": "dmz -> third_party",
+        "protocol": "https",
+        "data": [
+          "payment",
+          "pii"
+        ]
+      },
+      {
+        "flow": "F09",
+        "from": "paymob",
+        "to": "api",
+        "boundary": "third_party -> dmz",
+        "protocol": "https",
+        "data": [
+          "payment"
+        ]
+      },
+      {
+        "flow": "F10",
+        "from": "api",
+        "to": "fawry",
+        "boundary": "dmz -> third_party",
+        "protocol": "https",
+        "data": [
+          "payment",
+          "pii"
+        ]
+      },
+      {
+        "flow": "F11",
+        "from": "fawry",
+        "to": "api",
+        "boundary": "third_party -> dmz",
+        "protocol": "https",
+        "data": [
+          "payment"
+        ]
+      },
+      {
+        "flow": "F12",
+        "from": "api",
+        "to": "worker",
+        "boundary": "dmz -> internal",
+        "protocol": "amqp",
+        "data": [
+          "pii"
+        ]
+      },
+      {
+        "flow": "F13",
+        "from": "worker",
+        "to": "bosta",
+        "boundary": "internal -> third_party",
+        "protocol": "https",
+        "data": [
+          "pii"
+        ]
+      },
+      {
+        "flow": "F14",
+        "from": "api",
+        "to": "sms",
+        "boundary": "dmz -> third_party",
+        "protocol": "https",
+        "data": [
+          "pii"
+        ]
+      }
+    ],
+    "crown_jewels": [
+      "pg",
+      "redis",
+      "s3"
+    ],
+    "data_classes": [
+      "credentials",
+      "payment",
+      "pii"
+    ]
+  },
+  "findings": [
+    {
+      "id": "TL-001",
+      "rule_id": "API-01",
+      "title": "API operations without any security requirement (3 endpoints)",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "endpoint",
+      "description": "The OpenAPI spec declares no authentication on: `GET /orders/{orderId}/invoice`, `POST /payments/fawry/notify`, `GET /admin/export/customers`.",
+      "cwe": [
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V13.1 Generic Web Service Security",
+        "V4.1 General Access Control Design"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "rbac"
+      ],
+      "evidence": "OpenAPI: 3 matching operations",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-002",
+      "rule_id": "API-04",
+      "title": "Unsigned webhook / callback endpoints (2 endpoints)",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "endpoint",
+      "description": "Callback operations without a declared security scheme must verify HMAC signatures: `POST /payments/paymob/callback`, `POST /payments/fawry/notify`.",
+      "cwe": [
+        "CWE-345"
+      ],
+      "owasp_top10": [
+        "A08:2021 Software and Data Integrity Failures"
+      ],
+      "asvs": [
+        "V10.3 Application Integrity"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "webhook_signature"
+      ],
+      "evidence": "OpenAPI: 2 matching operations",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-003",
+      "rule_id": "F-03",
+      "title": "Forged webhook / callback from third party — Paymob (cards & wallets) → Shop API",
+      "stride": "S",
+      "target": "F09",
+      "target_kind": "flow",
+      "description": "Shop API accepts callbacks from Paymob (cards & wallets) (Payment data). Without signature verification an attacker can forge 'payment successful' or status events.",
+      "cwe": [
+        "CWE-345"
+      ],
+      "owasp_top10": [
+        "A08:2021 Software and Data Integrity Failures"
+      ],
+      "asvs": [
+        "V10.3 Application Integrity",
+        "V13.1 Generic Web Service Security"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "webhook_signature"
+      ],
+      "evidence": "F09: https auth=none third_party->dmz",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-004",
+      "rule_id": "F-03",
+      "title": "Forged webhook / callback from third party — Fawry Pay → Shop API",
+      "stride": "S",
+      "target": "F11",
+      "target_kind": "flow",
+      "description": "Shop API accepts callbacks from Fawry Pay (Payment data). Without signature verification an attacker can forge 'payment successful' or status events.",
+      "cwe": [
+        "CWE-345"
+      ],
+      "owasp_top10": [
+        "A08:2021 Software and Data Integrity Failures"
+      ],
+      "asvs": [
+        "V10.3 Application Integrity",
+        "V13.1 Generic Web Service Security"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "webhook_signature"
+      ],
+      "evidence": "F11: https auth=none third_party->dmz",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-005",
+      "rule_id": "S-03",
+      "title": "Internet-exposed admin panel without MFA — Admin Panel",
+      "stride": "S",
+      "target": "admin",
+      "target_kind": "component",
+      "description": "Admin Panel is reachable from the internet and protected only by password. Staff accounts are the highest-value phishing target.",
+      "cwe": [
+        "CWE-308",
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V4.3 Other Access Control Considerations",
+        "V2.8 One Time Verifier"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "mfa",
+        "admin_network"
+      ],
+      "evidence": "type=admin_panel, zone=dmz, auth=password, controls=['tls']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-006",
+      "rule_id": "API-02",
+      "title": "Endpoints addressing objects by ID (BOLA candidates) (6 endpoints)",
+      "stride": "I",
+      "target": "api",
+      "target_kind": "endpoint",
+      "description": "These operations take an object identifier and must enforce ownership checks: `GET /orders/{orderId}`, `GET /orders/{orderId}/invoice`, `GET /users/{userId}/addresses`, `PUT /users/{userId}/addresses`, `POST /returns/{orderId}/photos`, `POST /admin/orders/{orderId}/refund`.",
+      "cwe": [
+        "CWE-639"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V4.2 Operation Level Access Control"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "object_level_authz"
+      ],
+      "evidence": "OpenAPI: 6 matching operations",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-007",
+      "rule_id": "I-03",
+      "title": "IDOR / Broken object-level authorization — Shop API",
+      "stride": "I",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API exposes records by ID (Personal data (PII), Payment data, Credentials / tokens). If ownership is not checked server-side, changing an ID returns another customer's data.",
+      "cwe": [
+        "CWE-639",
+        "CWE-862"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V4.2 Operation Level Access Control"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "object_level_authz"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-008",
+      "rule_id": "API-03",
+      "title": "File-upload operations (1 endpoint)",
+      "stride": "T",
+      "target": "api",
+      "target_kind": "endpoint",
+      "description": "Multipart upload operations need type/size validation and malware scanning: `POST /returns/{orderId}/photos`.",
+      "cwe": [
+        "CWE-434"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V12.1 File Upload"
+      ],
+      "likelihood": 4,
+      "impact": 5,
+      "risk": 20,
+      "severity": "Critical",
+      "mitigations": [
+        "secure_upload"
+      ],
+      "evidence": "OpenAPI: 1 matching operations",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-009",
+      "rule_id": "T-02",
+      "title": "Payment amount / order tampering — Shop API",
+      "stride": "T",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API handles payments. If totals, discounts or amounts are accepted from the client, attackers can pay less than the real price.",
+      "cwe": [
+        "CWE-602",
+        "CWE-840"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V11.1 Business Logic Security"
+      ],
+      "likelihood": 4,
+      "impact": 5,
+      "risk": 20,
+      "severity": "Critical",
+      "mitigations": [
+        "server_side_pricing"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-010",
+      "rule_id": "E-02",
+      "title": "Server-side request forgery via outbound integrations — Shop API",
+      "stride": "E",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API fetches URLs or calls user/partner-configurable endpoints. SSRF can reach cloud metadata and internal services.",
+      "cwe": [
+        "CWE-918"
+      ],
+      "owasp_top10": [
+        "A10:2021 Server-Side Request Forgery"
+      ],
+      "asvs": [
+        "V12.6 SSRF Protection"
+      ],
+      "likelihood": 4,
+      "impact": 5,
+      "risk": 20,
+      "severity": "Critical",
+      "mitigations": [
+        "ssrf_protection"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-011",
+      "rule_id": "API-05",
+      "title": "Authentication / OTP endpoints need anti-automation (2 endpoints)",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "endpoint",
+      "description": "Login, OTP and password-reset operations are brute-force targets: `POST /auth/login`, `POST /auth/otp/verify`.",
+      "cwe": [
+        "CWE-307"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.2 General Authenticator Security"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting",
+        "account_lockout"
+      ],
+      "evidence": "OpenAPI: 2 matching operations",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-012",
+      "rule_id": "E-04",
+      "title": "Weak session / token lifecycle — Shop API",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API uses jwt tokens; without expiry, rotation and server-side revocation a stolen token stays valid indefinitely.",
+      "cwe": [
+        "CWE-613"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V3.3 Session Termination",
+        "V3.5 Token-based Session Management"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "session_mgmt"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-013",
+      "rule_id": "S-01",
+      "title": "Account takeover via single-factor authentication — Shop API",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API authenticates users with jwt only. Phished, reused or leaked passwords give an attacker full access to Personal data (PII), Payment data, Credentials / tokens.",
+      "cwe": [
+        "CWE-308",
+        "CWE-287"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.1 Password Security",
+        "V2.8 One Time Verifier"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "mfa"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-014",
+      "rule_id": "S-01",
+      "title": "Account takeover via single-factor authentication — Storefront",
+      "stride": "S",
+      "target": "storefront",
+      "target_kind": "component",
+      "description": "Storefront authenticates users with jwt only. Phished, reused or leaked passwords give an attacker full access to Personal data (PII), Credentials / tokens.",
+      "cwe": [
+        "CWE-308",
+        "CWE-287"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.1 Password Security",
+        "V2.8 One Time Verifier"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "mfa"
+      ],
+      "evidence": "type=web_frontend, zone=dmz, auth=jwt, controls=['tls', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-015",
+      "rule_id": "S-02",
+      "title": "Credential stuffing / brute force on login and OTP — Admin Panel",
+      "stride": "S",
+      "target": "admin",
+      "target_kind": "component",
+      "description": "No rate limiting is documented for Admin Panel. Automated credential-stuffing or OTP guessing can take over accounts.",
+      "cwe": [
+        "CWE-307"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.2 General Authenticator Security"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting",
+        "account_lockout"
+      ],
+      "evidence": "type=admin_panel, zone=dmz, auth=password, controls=['tls']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-016",
+      "rule_id": "S-02",
+      "title": "Credential stuffing / brute force on login and OTP — Shop API",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "component",
+      "description": "No rate limiting is documented for Shop API. Automated credential-stuffing or OTP guessing can take over accounts.",
+      "cwe": [
+        "CWE-307"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.2 General Authenticator Security"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting",
+        "account_lockout"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-017",
+      "rule_id": "S-02",
+      "title": "Credential stuffing / brute force on login and OTP — Storefront",
+      "stride": "S",
+      "target": "storefront",
+      "target_kind": "component",
+      "description": "No rate limiting is documented for Storefront. Automated credential-stuffing or OTP guessing can take over accounts.",
+      "cwe": [
+        "CWE-307"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.2 General Authenticator Security"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting",
+        "account_lockout"
+      ],
+      "evidence": "type=web_frontend, zone=dmz, auth=jwt, controls=['tls', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-018",
+      "rule_id": "T-04",
+      "title": "Stored / reflected XSS in browser UI — Admin Panel",
+      "stride": "T",
+      "target": "admin",
+      "target_kind": "component",
+      "description": "Admin Panel renders user-supplied content. Without output encoding and CSP, script injection can steal sessions of staff or customers.",
+      "cwe": [
+        "CWE-79"
+      ],
+      "owasp_top10": [
+        "A03:2021 Injection"
+      ],
+      "asvs": [
+        "V5.3 Output Encoding and Injection Prevention",
+        "V14.4 HTTP Security Headers"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "output_encoding"
+      ],
+      "evidence": "type=admin_panel, zone=dmz, auth=password, controls=['tls']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-019",
+      "rule_id": "F-02",
+      "title": "Unauthenticated call across a trust boundary — Shop API → Cart & Session Cache",
+      "stride": "S",
+      "target": "F06",
+      "target_kind": "flow",
+      "description": "Flow Shop API -> Cart & Session Cache crosses from 'dmz' to 'data' without authentication.",
+      "cwe": [
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture",
+        "V13.1 Generic Web Service Security"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "service_auth"
+      ],
+      "evidence": "F06: tcp auth=none dmz->data",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-020",
+      "rule_id": "T-03",
+      "title": "Malicious file upload — Shop API",
+      "stride": "T",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API accepts file uploads (e.g. documents, images, lab results). Unrestricted uploads enable web shells, malware hosting and stored XSS.",
+      "cwe": [
+        "CWE-434"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V12.1 File Upload",
+        "V12.2 File Integrity"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "secure_upload"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-021",
+      "rule_id": "F-01",
+      "title": "Sensitive data sent in cleartext — Shop API → Cart & Session Cache",
+      "stride": "I",
+      "target": "F06",
+      "target_kind": "flow",
+      "description": "Flow Shop API -> Cart & Session Cache uses TCP and carries Credentials / tokens, Personal data (PII). Anyone on the path (Wi-Fi, ISP, internal network) can read or modify it.",
+      "cwe": [
+        "CWE-319"
+      ],
+      "owasp_top10": [
+        "A02:2021 Cryptographic Failures"
+      ],
+      "asvs": [
+        "V9.1 Client Communication Security",
+        "V9.2 Server Communication Security"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "tls"
+      ],
+      "evidence": "F06: tcp auth=none dmz->data",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-022",
+      "rule_id": "I-07",
+      "title": "Unauthenticated cache exposes session / personal data — Cart & Session Cache",
+      "stride": "I",
+      "target": "redis",
+      "target_kind": "component",
+      "description": "Cart & Session Cache caches Credentials / tokens, Personal data (PII) with auth 'none'. Unauthenticated Redis/Memcached is routinely found and dumped.",
+      "cwe": [
+        "CWE-524",
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A05:2021 Security Misconfiguration",
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V8.1 General Data Protection"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "cache_auth"
+      ],
+      "evidence": "type=cache, zone=data, auth=none, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-023",
+      "rule_id": "SYS-01",
+      "title": "Secrets in source code / server env files",
+      "stride": "I",
+      "target": "system",
+      "target_kind": "system",
+      "description": "No secrets manager is documented. Payment-gateway keys, DB passwords and JWT signing keys tend to live in git or .env files.",
+      "cwe": [
+        "CWE-798"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V6.4 Secret Management",
+        "V14.1 Build and Deploy"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "secrets_manager"
+      ],
+      "evidence": "global_controls=['tls', 'cdn', 'backups']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-024",
+      "rule_id": "API-06",
+      "title": "Administrative API operations (3 endpoints)",
+      "stride": "E",
+      "target": "api",
+      "target_kind": "endpoint",
+      "description": "Admin operations exposed on the public API need server-side role checks and MFA-backed sessions: `POST /admin/products`, `POST /admin/orders/{orderId}/refund`, `GET /admin/export/customers`.",
+      "cwe": [
+        "CWE-285"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V4.1 General Access Control Design"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "rbac",
+        "mfa"
+      ],
+      "evidence": "OpenAPI: 3 matching operations",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-025",
+      "rule_id": "E-01",
+      "title": "Broken function-level authorization (user reaches admin functions) — Shop API",
+      "stride": "E",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API serves both end users and staff/admin functions. Missing server-side role checks let normal users call privileged endpoints.",
+      "cwe": [
+        "CWE-285",
+        "CWE-863"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V4.1 General Access Control Design",
+        "V4.2 Operation Level Access Control"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "rbac"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-026",
+      "rule_id": "F-02",
+      "title": "Unauthenticated call across a trust boundary — Shop API → Order Fulfilment Worker",
+      "stride": "S",
+      "target": "F12",
+      "target_kind": "flow",
+      "description": "Flow Shop API -> Order Fulfilment Worker crosses from 'dmz' to 'internal' without authentication.",
+      "cwe": [
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture",
+        "V13.1 Generic Web Service Security"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "service_auth"
+      ],
+      "evidence": "F12: amqp auth=none dmz->internal",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-027",
+      "rule_id": "S-05",
+      "title": "Unauthenticated access to internal service — Order Fulfilment Worker",
+      "stride": "S",
+      "target": "worker",
+      "target_kind": "component",
+      "description": "Order Fulfilment Worker accepts connections without authentication. Any foothold in the network can call it directly.",
+      "cwe": [
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture",
+        "V9.2 Server Communication Security"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "service_auth"
+      ],
+      "evidence": "type=service, zone=internal, auth=none, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-028",
+      "rule_id": "SYS-03",
+      "title": "Vulnerable third-party libraries (no SCA)",
+      "stride": "T",
+      "target": "system",
+      "target_kind": "system",
+      "description": "No dependency scanning is documented for the custom code (npm/composer/pip/pub). Known-vulnerable packages are a common entry point.",
+      "cwe": [
+        "CWE-1104"
+      ],
+      "owasp_top10": [
+        "A06:2021 Vulnerable and Outdated Components"
+      ],
+      "asvs": [
+        "V14.2 Dependency"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "sca"
+      ],
+      "evidence": "global_controls=['tls', 'cdn', 'backups']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-029",
+      "rule_id": "SYS-02",
+      "title": "No centralized security monitoring / alerting",
+      "stride": "R",
+      "target": "system",
+      "target_kind": "system",
+      "description": "There is no documented security monitoring. Breaches at SMEs are typically discovered months later, by customers or regulators.",
+      "cwe": [
+        "CWE-778"
+      ],
+      "owasp_top10": [
+        "A09:2021 Security Logging and Monitoring Failures"
+      ],
+      "asvs": [
+        "V7.2 Log Processing",
+        "V7.3 Log Protection"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "monitoring"
+      ],
+      "evidence": "global_controls=['tls', 'cdn', 'backups']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-030",
+      "rule_id": "I-02",
+      "title": "Publicly readable storage bucket / predictable file URLs — Product & Return-Photos Bucket",
+      "stride": "I",
+      "target": "s3",
+      "target_kind": "component",
+      "description": "Product & Return-Photos Bucket holds files (Personal data (PII)). Misconfigured public access or guessable URLs are a top cause of SME data leaks.",
+      "cwe": [
+        "CWE-732",
+        "CWE-200"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V12.4 File Storage",
+        "V4.1 General Access Control Design"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "private_storage"
+      ],
+      "evidence": "type=object_storage, zone=data, auth=none, controls=['encryption_at_rest']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-031",
+      "rule_id": "D-01",
+      "title": "Resource exhaustion on public API — Shop API",
+      "stride": "D",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API is internet-facing without documented rate limits; scraping or floods can take the service down or inflate cloud bills.",
+      "cwe": [
+        "CWE-770"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V11.1 Business Logic Security",
+        "V13.1 Generic Web Service Security"
+      ],
+      "likelihood": 4,
+      "impact": 3,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-032",
+      "rule_id": "D-04",
+      "title": "SMS/WhatsApp OTP pumping & messaging abuse — SMS OTP Provider",
+      "stride": "D",
+      "target": "sms",
+      "target_kind": "component",
+      "description": "SMS OTP Provider sends OTP / notifications. Bots can trigger thousands of messages (toll fraud) or spam patients/customers.",
+      "cwe": [
+        "CWE-799"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V2.2 General Authenticator Security"
+      ],
+      "likelihood": 4,
+      "impact": 3,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "otp_abuse"
+      ],
+      "evidence": "type=third_party, zone=third_party, auth=api_key, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-033",
+      "rule_id": "R-02",
+      "title": "Sensitive logs leak data — Shop API",
+      "stride": "R",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API logs requests, but log redaction is not documented. Logs become a second, poorly-protected copy of Personal data (PII), Payment data, Credentials / tokens.",
+      "cwe": [
+        "CWE-532"
+      ],
+      "owasp_top10": [
+        "A09:2021 Security Logging and Monitoring Failures"
+      ],
+      "asvs": [
+        "V7.1 Log Content"
+      ],
+      "likelihood": 2,
+      "impact": 5,
+      "risk": 10,
+      "severity": "Medium",
+      "mitigations": [
+        "log_redaction"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-034",
+      "rule_id": "E-03",
+      "title": "Over-privileged database account — Orders DB",
+      "stride": "E",
+      "target": "pg",
+      "target_kind": "component",
+      "description": "Orders DB: applications typically connect with owner/DBA rights; any injection becomes full database compromise.",
+      "cwe": [
+        "CWE-250"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture"
+      ],
+      "likelihood": 2,
+      "impact": 5,
+      "risk": 10,
+      "severity": "Medium",
+      "mitigations": [
+        "least_privilege_db"
+      ],
+      "evidence": "type=database, zone=data, auth=none, controls=['encryption_at_rest', 'backups']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-035",
+      "rule_id": "R-01",
+      "title": "No audit trail for access to sensitive records — Admin Panel",
+      "stride": "R",
+      "target": "admin",
+      "target_kind": "component",
+      "description": "Admin Panel processes Personal data (PII), Payment data but no audit logging is documented. Insider misuse or a breach cannot be investigated or proven.",
+      "cwe": [
+        "CWE-778"
+      ],
+      "owasp_top10": [
+        "A09:2021 Security Logging and Monitoring Failures"
+      ],
+      "asvs": [
+        "V7.1 Log Content",
+        "V7.2 Log Processing"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "audit_logging"
+      ],
+      "evidence": "type=admin_panel, zone=dmz, auth=password, controls=['tls']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-036",
+      "rule_id": "R-01",
+      "title": "No audit trail for access to sensitive records — Shop API",
+      "stride": "R",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API processes Personal data (PII), Payment data, Credentials / tokens but no audit logging is documented. Insider misuse or a breach cannot be investigated or proven.",
+      "cwe": [
+        "CWE-778"
+      ],
+      "owasp_top10": [
+        "A09:2021 Security Logging and Monitoring Failures"
+      ],
+      "asvs": [
+        "V7.1 Log Content",
+        "V7.2 Log Processing"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "audit_logging"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-037",
+      "rule_id": "I-06",
+      "title": "Personal data shared with third party beyond need — Bosta Shipping API",
+      "stride": "I",
+      "target": "bosta",
+      "target_kind": "component",
+      "description": "Bosta Shipping API receives Personal data (PII). Over-sharing with processors without a DPA creates privacy and regulatory exposure (Egypt PDPL / KSA PDPL).",
+      "cwe": [
+        "CWE-359"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V8.3 Sensitive Private Data"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "data_minimization"
+      ],
+      "evidence": "type=third_party, zone=third_party, auth=api_key, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-038",
+      "rule_id": "I-06",
+      "title": "Personal data shared with third party beyond need — Fawry Pay",
+      "stride": "I",
+      "target": "fawry",
+      "target_kind": "component",
+      "description": "Fawry Pay receives Payment data, Personal data (PII). Over-sharing with processors without a DPA creates privacy and regulatory exposure (Egypt PDPL / KSA PDPL).",
+      "cwe": [
+        "CWE-359"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V8.3 Sensitive Private Data"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "data_minimization"
+      ],
+      "evidence": "type=third_party, zone=third_party, auth=api_key, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-039",
+      "rule_id": "I-06",
+      "title": "Personal data shared with third party beyond need — Paymob (cards & wallets)",
+      "stride": "I",
+      "target": "paymob",
+      "target_kind": "component",
+      "description": "Paymob (cards & wallets) receives Payment data, Personal data (PII). Over-sharing with processors without a DPA creates privacy and regulatory exposure (Egypt PDPL / KSA PDPL).",
+      "cwe": [
+        "CWE-359"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V8.3 Sensitive Private Data"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "data_minimization"
+      ],
+      "evidence": "type=third_party, zone=third_party, auth=api_key, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-040",
+      "rule_id": "I-06",
+      "title": "Personal data shared with third party beyond need — SMS OTP Provider",
+      "stride": "I",
+      "target": "sms",
+      "target_kind": "component",
+      "description": "SMS OTP Provider receives Personal data (PII). Over-sharing with processors without a DPA creates privacy and regulatory exposure (Egypt PDPL / KSA PDPL).",
+      "cwe": [
+        "CWE-359"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V8.3 Sensitive Private Data"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "data_minimization"
+      ],
+      "evidence": "type=third_party, zone=third_party, auth=api_key, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-041",
+      "rule_id": "I-04",
+      "title": "Verbose errors / debug mode in production — Admin Panel",
+      "stride": "I",
+      "target": "admin",
+      "target_kind": "component",
+      "description": "Admin Panel: stack traces and framework debug pages disclose internals and sometimes secrets.",
+      "cwe": [
+        "CWE-209"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V7.4 Error Handling"
+      ],
+      "likelihood": 4,
+      "impact": 2,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "error_handling"
+      ],
+      "evidence": "type=admin_panel, zone=dmz, auth=password, controls=['tls']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-042",
+      "rule_id": "I-04",
+      "title": "Verbose errors / debug mode in production — Shop API",
+      "stride": "I",
+      "target": "api",
+      "target_kind": "component",
+      "description": "Shop API: stack traces and framework debug pages disclose internals and sometimes secrets.",
+      "cwe": [
+        "CWE-209"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V7.4 Error Handling"
+      ],
+      "likelihood": 4,
+      "impact": 2,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "error_handling"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'logging', 'input_validation']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-043",
+      "rule_id": "I-04",
+      "title": "Verbose errors / debug mode in production — Storefront",
+      "stride": "I",
+      "target": "storefront",
+      "target_kind": "component",
+      "description": "Storefront: stack traces and framework debug pages disclose internals and sometimes secrets.",
+      "cwe": [
+        "CWE-209"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V7.4 Error Handling"
+      ],
+      "likelihood": 4,
+      "impact": 2,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "error_handling"
+      ],
+      "evidence": "type=web_frontend, zone=dmz, auth=jwt, controls=['tls', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    }
+  ],
+  "remediation_plan": [
+    {
+      "key": "webhook_signature",
+      "title": "Verify payment & partner webhook signatures",
+      "detail": "Validate HMAC (e.g. Paymob HMAC, Fawry signature) and re-query transaction status server-to-server before fulfilling.",
+      "effort_days": 1.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 1,
+      "findings": [
+        "TL-002",
+        "TL-003",
+        "TL-004"
+      ],
+      "risk_reduced": 75
+    },
+    {
+      "key": "mfa",
+      "title": "Enforce MFA for privileged and staff accounts",
+      "detail": "TOTP / passkeys for admin, doctor, finance and HR roles; SMS OTP only as fallback.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 2,
+      "findings": [
+        "TL-005",
+        "TL-013",
+        "TL-014",
+        "TL-024"
+      ],
+      "risk_reduced": 72
+    },
+    {
+      "key": "admin_network",
+      "title": "Restrict admin panel to VPN / IP allow-list",
+      "detail": "Serve the back office on a separate host, behind VPN or Cloudflare Access / Zero-Trust.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 3,
+      "findings": [
+        "TL-005"
+      ],
+      "risk_reduced": 25
+    },
+    {
+      "key": "rbac",
+      "title": "Role-based access control on every privileged function",
+      "detail": "Deny-by-default middleware, role checks on server for admin APIs, tests per role.",
+      "effort_days": 3.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 4,
+      "findings": [
+        "TL-001",
+        "TL-024",
+        "TL-025"
+      ],
+      "risk_reduced": 55
+    },
+    {
+      "key": "object_level_authz",
+      "title": "Object-level authorization on every record access (anti-IDOR/BOLA)",
+      "detail": "Central policy check that the caller owns / may access the record; use non-guessable IDs; add automated authz tests.",
+      "effort_days": 4.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 5,
+      "findings": [
+        "TL-006",
+        "TL-007"
+      ],
+      "risk_reduced": 50
+    },
+    {
+      "key": "secure_upload",
+      "title": "Harden file uploads",
+      "detail": "Type/size allow-list, re-encode images, malware scan, store outside web root with random names, serve via signed URLs.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 6,
+      "findings": [
+        "TL-008",
+        "TL-020"
+      ],
+      "risk_reduced": 35
+    },
+    {
+      "key": "server_side_pricing",
+      "title": "Recompute amounts and prices server-side",
+      "detail": "Never trust totals, discounts or amounts from the client; sign the order before redirecting to the gateway.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 7,
+      "findings": [
+        "TL-009"
+      ],
+      "risk_reduced": 20
+    },
+    {
+      "key": "ssrf_protection",
+      "title": "SSRF protection for outbound requests",
+      "detail": "Allow-list destinations, block internal IP ranges/metadata endpoints, use egress proxy.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 8,
+      "findings": [
+        "TL-010"
+      ],
+      "risk_reduced": 20
+    },
+    {
+      "key": "rate_limiting",
+      "title": "Rate limiting & anti-automation on auth/OTP/sensitive endpoints",
+      "detail": "Per-IP and per-account limits at the gateway (e.g. Nginx/Cloudflare) plus progressive delays and CAPTCHA after failures.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 9,
+      "findings": [
+        "TL-011",
+        "TL-015",
+        "TL-016",
+        "TL-017",
+        "TL-031"
+      ],
+      "risk_reduced": 76
+    },
+    {
+      "key": "account_lockout",
+      "title": "Account lockout & credential-stuffing detection",
+      "detail": "Temporary lockout, breached-password check (HIBP k-anonymity), alert on spikes of failed logins.",
+      "effort_days": 1.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 10,
+      "findings": [
+        "TL-011",
+        "TL-015",
+        "TL-016",
+        "TL-017"
+      ],
+      "risk_reduced": 64
+    },
+    {
+      "key": "session_mgmt",
+      "title": "Harden session & token lifecycle",
+      "detail": "Short-lived access tokens, refresh token rotation, server-side revocation on logout / password change.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 11,
+      "findings": [
+        "TL-012"
+      ],
+      "risk_reduced": 16
+    },
+    {
+      "key": "output_encoding",
+      "title": "Output encoding + Content-Security-Policy",
+      "detail": "Framework auto-escaping, strict CSP, sanitize rich text (DOMPurify).",
+      "effort_days": 2.0,
+      "owner": "Frontend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 12,
+      "findings": [
+        "TL-018"
+      ],
+      "risk_reduced": 16
+    },
+    {
+      "key": "cache_auth",
+      "title": "Lock down the cache",
+      "detail": "Require AUTH/ACLs, private network only, TTLs for sensitive keys.",
+      "effort_days": 0.5,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 13,
+      "findings": [
+        "TL-022"
+      ],
+      "risk_reduced": 15
+    },
+    {
+      "key": "tls",
+      "title": "Encrypt all data in transit (TLS 1.2+)",
+      "detail": "HTTPS/SFTP/TLS everywhere incl. internal hops carrying sensitive data; HSTS on public sites.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 14,
+      "findings": [
+        "TL-021"
+      ],
+      "risk_reduced": 15
+    },
+    {
+      "key": "secrets_manager",
+      "title": "Move secrets to a secrets manager & rotate",
+      "detail": "Vault / AWS Secrets Manager / Doppler, no keys in git or .env on servers, secret scanning in CI.",
+      "effort_days": 2.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 15,
+      "findings": [
+        "TL-023"
+      ],
+      "risk_reduced": 15
+    },
+    {
+      "key": "sca",
+      "title": "Dependency scanning & patching cadence (SCA)",
+      "detail": "Dependabot/Renovate + OSV/Trivy in CI, monthly patch window.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 16,
+      "findings": [
+        "TL-028"
+      ],
+      "risk_reduced": 12
+    },
+    {
+      "key": "private_storage",
+      "title": "Private buckets + short-lived signed URLs",
+      "detail": "Block public access, per-object authorization, URL expiry <= 15 min.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 17,
+      "findings": [
+        "TL-030"
+      ],
+      "risk_reduced": 12
+    },
+    {
+      "key": "otp_abuse",
+      "title": "OTP/SMS pumping controls",
+      "detail": "Per-number and per-country limits, CAPTCHA before sending, alert on SMS spend anomalies.",
+      "effort_days": 1.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 18,
+      "findings": [
+        "TL-032"
+      ],
+      "risk_reduced": 12
+    },
+    {
+      "key": "service_auth",
+      "title": "Authenticate service-to-service traffic",
+      "detail": "mTLS or signed service tokens between internal services; network policies.",
+      "effort_days": 3.0,
+      "owner": "DevOps",
+      "phase": "Next (30 days)",
+      "priority": 19,
+      "findings": [
+        "TL-019",
+        "TL-026",
+        "TL-027"
+      ],
+      "risk_reduced": 39
+    },
+    {
+      "key": "monitoring",
+      "title": "Centralized security monitoring & alerting",
+      "detail": "Ship auth, admin and payment events to a SIEM/log platform; alert on anomalies; on-call runbook.",
+      "effort_days": 3.0,
+      "owner": "DevOps",
+      "phase": "Next (30 days)",
+      "priority": 20,
+      "findings": [
+        "TL-029"
+      ],
+      "risk_reduced": 12
+    },
+    {
+      "key": "log_redaction",
+      "title": "Redact sensitive fields from logs",
+      "detail": "Mask national IDs, card data, tokens and medical details in application and gateway logs.",
+      "effort_days": 1.0,
+      "owner": "Backend",
+      "phase": "Next (30 days)",
+      "priority": 21,
+      "findings": [
+        "TL-033"
+      ],
+      "risk_reduced": 10
+    },
+    {
+      "key": "least_privilege_db",
+      "title": "Least-privilege database accounts",
+      "detail": "Separate read/write accounts per service, no app access with DBA rights, no direct internet exposure.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Next (30 days)",
+      "priority": 22,
+      "findings": [
+        "TL-034"
+      ],
+      "risk_reduced": 10
+    },
+    {
+      "key": "error_handling",
+      "title": "Generic error responses, no stack traces in production",
+      "detail": "Global exception handler, debug mode off, correlation IDs instead of details.",
+      "effort_days": 0.5,
+      "owner": "Backend",
+      "phase": "Next (30 days)",
+      "priority": 23,
+      "findings": [
+        "TL-041",
+        "TL-042",
+        "TL-043"
+      ],
+      "risk_reduced": 24
+    },
+    {
+      "key": "data_minimization",
+      "title": "Data minimization & DPA with third parties",
+      "detail": "Send only the fields the provider needs; sign a data-processing agreement (Egypt PDPL 151/2020, KSA PDPL).",
+      "effort_days": 2.0,
+      "owner": "Product/Legal",
+      "phase": "Later (90 days)",
+      "priority": 24,
+      "findings": [
+        "TL-037",
+        "TL-038",
+        "TL-039",
+        "TL-040"
+      ],
+      "risk_reduced": 36
+    },
+    {
+      "key": "audit_logging",
+      "title": "Tamper-evident audit log for sensitive actions",
+      "detail": "Log who/what/when for access to patient/employee/payment records and admin changes; ship to append-only storage.",
+      "effort_days": 3.0,
+      "owner": "Backend",
+      "phase": "Later (90 days)",
+      "priority": 25,
+      "findings": [
+        "TL-035",
+        "TL-036"
+      ],
+      "risk_reduced": 18
+    }
+  ],
+  "diagram_mermaid": "flowchart LR\n  subgraph z_internet[\"Internet (untrusted)\"]\n    n_shopper[\"👤 Shopper\"]\n    n_ops[\"👤 Ops / Admin Staff\"]\n  end\n  subgraph z_dmz[\"DMZ / public edge\"]\n    n_storefront(\"Storefront<br/><small>Next.js 14 on Vercel</small>\")\n    n_api(\"Shop API<br/><small>Node.js / Express on AWS EC2</small>\")\n    n_admin(\"Admin Panel<br/><small>React-Admin</small>\")\n  end\n  subgraph z_internal[\"Internal application zone\"]\n    n_worker(\"Order Fulfilment Worker<br/><small>Node.js worker</small>\")\n  end\n  subgraph z_data[\"Data zone\"]\n    n_pg[(\"Orders DB<br/><small>Amazon RDS PostgreSQL</small>\")]\n    n_redis[(\"Cart & Session Cache<br/><small>ElastiCache Redis</small>\")]\n    n_s3[(\"Product & Return-Photos Bucket<br/><small>Amazon S3</small>\")]\n  end\n  subgraph z_third_party[\"Third-party providers\"]\n    n_paymob{{\"Paymob (cards & wallets)\"}}\n    n_fawry{{\"Fawry Pay\"}}\n    n_bosta{{\"Bosta Shipping API\"}}\n    n_sms{{\"SMS OTP Provider\"}}\n  end\n  n_shopper -->|\"F01 HTTPS · pii,credentials\"| n_storefront\n  n_storefront -->|\"F02 HTTPS · pii,payment,credentials\"| n_api\n  n_ops -->|\"F03 HTTPS · pii,credentials\"| n_admin\n  n_admin -->|\"F04 HTTPS · pii,payment\"| n_api\n  n_api -->|\"F05 TCP/TLS · pii,payment\"| n_pg\n  n_api -.->|\"F06 TCP · credentials,pii\"| n_redis\n  n_api -->|\"F07 HTTPS · pii\"| n_s3\n  n_api -->|\"F08 HTTPS · payment,pii\"| n_paymob\n  n_paymob -->|\"F09 HTTPS · payment\"| n_api\n  n_api -->|\"F10 HTTPS · payment,pii\"| n_fawry\n  n_fawry -->|\"F11 HTTPS · payment\"| n_api\n  n_api -->|\"F12 AMQP · pii\"| n_worker\n  n_worker -->|\"F13 HTTPS · pii\"| n_bosta\n  n_api -->|\"F14 HTTPS · pii\"| n_sms\n  classDef critical fill:#fde2e1,stroke:#c0392b,stroke-width:2px\n  classDef high fill:#fff1db,stroke:#e67e22,stroke-width:2px\n  classDef medium fill:#fffbe0,stroke:#c9a400\n  class n_api,n_admin critical\n  class n_storefront,n_redis,n_worker,n_s3,n_sms high\n  class n_pg,n_bosta,n_fawry,n_paymob medium",
+  "reflections": [
+    {
+      "iteration": 1,
+      "gaps": [],
+      "notes": [
+        "No controls documented for: Order Fulfilment Worker, Cart & Session Cache. Conservative assumptions were applied."
+      ],
+      "complete": true
+    }
+  ],
+  "trace": [
+    {
+      "step": 1,
+      "kind": "plan",
+      "thought": "Plan: parse input -> inventory assets & trust boundaries -> STRIDE per component -> data flows -> OpenAPI endpoints -> system checks -> map OWASP/ASVS/CWE -> score risk -> reflect & repair gaps -> remediation plan -> DFD -> report."
+    },
+    {
+      "step": 2,
+      "kind": "tool",
+      "tool": "parse_architecture",
+      "args": {},
+      "thought": "Normalise the input into components and flows.",
+      "actor": "planner",
+      "result": "{\"system\": \"Nile Threads E-commerce Store\", \"components\": 13, \"flows\": 14, \"endpoints\": 16, \"source\": \"yaml\", \"component_ids\": [\"shopper\", \"ops\", \"storefront...",
+      "ms": 0.2
+    },
+    {
+      "step": 3,
+      "kind": "tool",
+      "tool": "enumerate_components",
+      "args": {},
+      "thought": "Inventory assets, data classes and trust boundaries.",
+      "actor": "planner",
+      "result": "{\"assets\": 13, \"trust_zones\": [\"internet\", \"dmz\", \"internal\", \"data\", \"third_party\"], \"boundary_crossings\": 12, \"crown_jewels\": [\"pg\", \"redis\", \"s3\"]}",
+      "ms": 0.1
+    },
+    {
+      "step": 4,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "storefront"
+      },
+      "thought": "Apply STRIDE to Storefront (web_frontend).",
+      "actor": "planner",
+      "result": "{\"component\": \"storefront\", \"new_findings\": [{\"id\": \"TMP-001\", \"stride\": \"S\", \"title\": \"Account takeover via single-factor authentication — Storefront\"}, {\"i...",
+      "ms": 0.1
+    },
+    {
+      "step": 5,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "api"
+      },
+      "thought": "Apply STRIDE to Shop API (api).",
+      "actor": "planner",
+      "result": "{\"component\": \"api\", \"new_findings\": [{\"id\": \"TMP-004\", \"stride\": \"S\", \"title\": \"Account takeover via single-factor authentication — Shop API\"}, {\"id\": \"TMP-...",
+      "ms": 0.1
+    },
+    {
+      "step": 6,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "admin"
+      },
+      "thought": "Apply STRIDE to Admin Panel (admin_panel).",
+      "actor": "planner",
+      "result": "{\"component\": \"admin\", \"new_findings\": [{\"id\": \"TMP-016\", \"stride\": \"S\", \"title\": \"Credential stuffing / brute force on login and OTP — Admin Panel\"}, {\"id\":...",
+      "ms": 0.1
+    },
+    {
+      "step": 7,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "worker"
+      },
+      "thought": "Apply STRIDE to Order Fulfilment Worker (service).",
+      "actor": "planner",
+      "result": "{\"component\": \"worker\", \"new_findings\": [{\"id\": \"TMP-021\", \"stride\": \"S\", \"title\": \"Unauthenticated access to internal service — Order Fulfilment Worker\"}], ...",
+      "ms": 0.0
+    },
+    {
+      "step": 8,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "pg"
+      },
+      "thought": "Apply STRIDE to Orders DB (database).",
+      "actor": "planner",
+      "result": "{\"component\": \"pg\", \"new_findings\": [{\"id\": \"TMP-022\", \"stride\": \"E\", \"title\": \"Over-privileged database account — Orders DB\"}], \"stride_covered\": [\"E\"]}",
+      "ms": 0.0
+    },
+    {
+      "step": 9,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "redis"
+      },
+      "thought": "Apply STRIDE to Cart & Session Cache (cache).",
+      "actor": "planner",
+      "result": "{\"component\": \"redis\", \"new_findings\": [{\"id\": \"TMP-023\", \"stride\": \"I\", \"title\": \"Unauthenticated cache exposes session / personal data — Cart & Session Cac...",
+      "ms": 0.0
+    },
+    {
+      "step": 10,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "s3"
+      },
+      "thought": "Apply STRIDE to Product & Return-Photos Bucket (object_storage).",
+      "actor": "planner",
+      "result": "{\"component\": \"s3\", \"new_findings\": [{\"id\": \"TMP-024\", \"stride\": \"I\", \"title\": \"Publicly readable storage bucket / predictable file URLs — Product & Return-P...",
+      "ms": 0.0
+    },
+    {
+      "step": 11,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "paymob"
+      },
+      "thought": "Apply STRIDE to Paymob (cards & wallets) (third_party).",
+      "actor": "planner",
+      "result": "{\"component\": \"paymob\", \"new_findings\": [{\"id\": \"TMP-025\", \"stride\": \"I\", \"title\": \"Personal data shared with third party beyond need — Paymob (cards & walle...",
+      "ms": 0.0
+    },
+    {
+      "step": 12,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "fawry"
+      },
+      "thought": "Apply STRIDE to Fawry Pay (third_party).",
+      "actor": "planner",
+      "result": "{\"component\": \"fawry\", \"new_findings\": [{\"id\": \"TMP-026\", \"stride\": \"I\", \"title\": \"Personal data shared with third party beyond need — Fawry Pay\"}], \"stride_...",
+      "ms": 0.0
+    },
+    {
+      "step": 13,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "bosta"
+      },
+      "thought": "Apply STRIDE to Bosta Shipping API (third_party).",
+      "actor": "planner",
+      "result": "{\"component\": \"bosta\", \"new_findings\": [{\"id\": \"TMP-027\", \"stride\": \"I\", \"title\": \"Personal data shared with third party beyond need — Bosta Shipping API\"}],...",
+      "ms": 0.0
+    },
+    {
+      "step": 14,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "sms"
+      },
+      "thought": "Apply STRIDE to SMS OTP Provider (third_party).",
+      "actor": "planner",
+      "result": "{\"component\": \"sms\", \"new_findings\": [{\"id\": \"TMP-028\", \"stride\": \"I\", \"title\": \"Personal data shared with third party beyond need — SMS OTP Provider\"}, {\"id...",
+      "ms": 0.0
+    },
+    {
+      "step": 15,
+      "kind": "tool",
+      "tool": "analyze_data_flows",
+      "args": {},
+      "thought": "Check every data flow and boundary crossing.",
+      "actor": "planner",
+      "result": "{\"flows_checked\": 14, \"new_findings\": [{\"id\": \"TMP-030\", \"title\": \"Sensitive data sent in cleartext — Shop API → Cart & Session Cache\"}, {\"id\": \"TMP-031\", \"t...",
+      "ms": 0.1
+    },
+    {
+      "step": 16,
+      "kind": "tool",
+      "tool": "analyze_api_endpoints",
+      "args": {},
+      "thought": "Review 16 OpenAPI operations.",
+      "actor": "planner",
+      "result": "{\"endpoints_checked\": 16, \"new_findings\": [{\"id\": \"TMP-035\", \"title\": \"API operations without any security requirement (3 endpoints)\"}, {\"id\": \"TMP-036\", \"ti...",
+      "ms": 0.1
+    },
+    {
+      "step": 17,
+      "kind": "tool",
+      "tool": "analyze_system",
+      "args": {},
+      "thought": "System-wide checks (secrets, monitoring, dependencies).",
+      "actor": "planner",
+      "result": "{\"new_findings\": [{\"id\": \"TMP-041\", \"title\": \"Secrets in source code / server env files\"}, {\"id\": \"TMP-042\", \"title\": \"No centralized security monitoring / a...",
+      "ms": 0.0
+    },
+    {
+      "step": 18,
+      "kind": "tool",
+      "tool": "map_to_owasp",
+      "args": {},
+      "thought": "Map findings to OWASP Top 10 / ASVS / CWE.",
+      "actor": "planner",
+      "result": "{\"mapped\": 43, \"total\": 43}",
+      "ms": 0.0
+    },
+    {
+      "step": 19,
+      "kind": "tool",
+      "tool": "score_risk",
+      "args": {},
+      "thought": "Score likelihood x impact.",
+      "actor": "planner",
+      "result": "{\"scored\": 43, \"by_severity\": {\"Critical\": 10, \"High\": 22, \"Medium\": 11, \"Low\": 0}, \"top\": [{\"id\": \"TL-001\", \"risk\": 25, \"title\": \"API operations without any...",
+      "ms": 0.1
+    },
+    {
+      "step": 20,
+      "kind": "tool",
+      "tool": "reflect",
+      "args": {},
+      "thought": "Self-check coverage before writing the plan.",
+      "actor": "planner",
+      "result": "{\"iteration\": 1, \"gaps\": [], \"notes\": [\"No controls documented for: Order Fulfilment Worker, Cart & Session Cache. Conservative assumptions were applied.\"], ...",
+      "ms": 0.0
+    },
+    {
+      "step": 21,
+      "kind": "tool",
+      "tool": "build_remediation_plan",
+      "args": {},
+      "thought": "Prioritise fixes by risk reduced per effort-day.",
+      "actor": "planner",
+      "result": "{\"actions\": 25, \"effort_days_by_phase\": {\"Now (0-2 weeks)\": 29.5, \"Next (30 days)\": 8.5, \"Later (90 days)\": 5.0}, \"total_effort_days\": 43.0, \"first_actions\":...",
+      "ms": 0.1
+    },
+    {
+      "step": 22,
+      "kind": "tool",
+      "tool": "render_diagram",
+      "args": {},
+      "thought": "Draw the data-flow diagram with trust boundaries.",
+      "actor": "planner",
+      "result": "{\"lines\": 44, \"highlighted\": 12}",
+      "ms": 0.2
+    }
+  ]
+}

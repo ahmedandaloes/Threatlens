@@ -1,0 +1,12 @@
+system: hr_payroll_portal.json
+items:
+  - {threat: "IDOR: employee views another employee's payslip / Iqama", cwe: [CWE-639]}
+  - {threat: "Cleartext HTTP from attendance terminals", cwe: [CWE-319]}
+  - {threat: "Unauthenticated payroll engine / queue", cwe: [CWE-306], target: payroll}
+  - {threat: "CSRF on cookie-session employee portal", cwe: [CWE-352]}
+  - {threat: "Malicious document upload", cwe: [CWE-434]}
+  - {threat: "Salary / IBAN data in logs", cwe: [CWE-532]}
+  - {threat: "Mass assignment of salary / role fields", cwe: [CWE-915], note: "The KB suppresses this because the API documents input_validation; a reviewer should still confirm explicit DTOs are used."}
+  - {threat: "WPS payroll file tampering before bank upload", cwe: [CWE-345, CWE-494]}
+  - {threat: "Credential stuffing on employee portal", cwe: [CWE-307]}
+  - {threat: "Secrets for bank SFTP / government APIs in config", cwe: [CWE-798]}

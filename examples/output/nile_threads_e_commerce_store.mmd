@@ -1,0 +1,44 @@
+flowchart LR
+  subgraph z_internet["Internet (untrusted)"]
+    n_shopper["👤 Shopper"]
+    n_ops["👤 Ops / Admin Staff"]
+  end
+  subgraph z_dmz["DMZ / public edge"]
+    n_storefront("Storefront<br/><small>Next.js 14 on Vercel</small>")
+    n_api("Shop API<br/><small>Node.js / Express on AWS EC2</small>")
+    n_admin("Admin Panel<br/><small>React-Admin</small>")
+  end
+  subgraph z_internal["Internal application zone"]
+    n_worker("Order Fulfilment Worker<br/><small>Node.js worker</small>")
+  end
+  subgraph z_data["Data zone"]
+    n_pg[("Orders DB<br/><small>Amazon RDS PostgreSQL</small>")]
+    n_redis[("Cart & Session Cache<br/><small>ElastiCache Redis</small>")]
+    n_s3[("Product & Return-Photos Bucket<br/><small>Amazon S3</small>")]
+  end
+  subgraph z_third_party["Third-party providers"]
+    n_paymob{{"Paymob (cards & wallets)"}}
+    n_fawry{{"Fawry Pay"}}
+    n_bosta{{"Bosta Shipping API"}}
+    n_sms{{"SMS OTP Provider"}}
+  end
+  n_shopper -->|"F01 HTTPS · pii,credentials"| n_storefront
+  n_storefront -->|"F02 HTTPS · pii,payment,credentials"| n_api
+  n_ops -->|"F03 HTTPS · pii,credentials"| n_admin
+  n_admin -->|"F04 HTTPS · pii,payment"| n_api
+  n_api -->|"F05 TCP/TLS · pii,payment"| n_pg
+  n_api -.->|"F06 TCP · credentials,pii"| n_redis
+  n_api -->|"F07 HTTPS · pii"| n_s3
+  n_api -->|"F08 HTTPS · payment,pii"| n_paymob
+  n_paymob -->|"F09 HTTPS · payment"| n_api
+  n_api -->|"F10 HTTPS · payment,pii"| n_fawry
+  n_fawry -->|"F11 HTTPS · payment"| n_api
+  n_api -->|"F12 AMQP · pii"| n_worker
+  n_worker -->|"F13 HTTPS · pii"| n_bosta
+  n_api -->|"F14 HTTPS · pii"| n_sms
+  classDef critical fill:#fde2e1,stroke:#c0392b,stroke-width:2px
+  classDef high fill:#fff1db,stroke:#e67e22,stroke-width:2px
+  classDef medium fill:#fffbe0,stroke:#c9a400
+  class n_api,n_admin critical
+  class n_storefront,n_redis,n_worker,n_s3,n_sms high
+  class n_pg,n_bosta,n_fawry,n_paymob medium

@@ -1,0 +1,35 @@
+flowchart LR
+  subgraph z_internet["Internet (untrusted)"]
+    n_end_user["👤 Customer / End user"]
+    n_staff["👤 Staff / Admin user"]
+  end
+  subgraph z_dmz["DMZ / public edge"]
+    n_mobile_app("Mobile App")
+    n_admin_panel("Admin Dashboard")
+    n_backend_api("Backend API")
+  end
+  subgraph z_data["Data zone"]
+    n_database[("Database")]
+    n_file_storage[("File Storage")]
+  end
+  subgraph z_third_party["Third-party providers"]
+    n_payment_gateway{{"Payment Gateway (Moyasar)"}}
+    n_messaging{{"SMS / WhatsApp Provider (Unifonic)"}}
+    n_shipping{{"Shipping / Courier API"}}
+  end
+  n_end_user -->|"F01 HTTPS · phi,payment,pii"| n_mobile_app
+  n_mobile_app -->|"F02 HTTPS · phi,payment,pii"| n_backend_api
+  n_staff -->|"F03 HTTPS · phi,payment,pii"| n_admin_panel
+  n_admin_panel -->|"F04 HTTPS · phi,payment,pii"| n_backend_api
+  n_backend_api -->|"F05 TCP/TLS · phi,payment,pii"| n_database
+  n_backend_api -->|"F06 HTTPS · phi,payment,pii"| n_file_storage
+  n_backend_api -->|"F07 HTTPS · payment,pii"| n_payment_gateway
+  n_payment_gateway -->|"F08 HTTPS · payment"| n_backend_api
+  n_backend_api -->|"F09 HTTPS · pii"| n_messaging
+  n_backend_api -->|"F10 HTTPS · pii"| n_shipping
+  classDef critical fill:#fde2e1,stroke:#c0392b,stroke-width:2px
+  classDef high fill:#fff1db,stroke:#e67e22,stroke-width:2px
+  classDef medium fill:#fffbe0,stroke:#c9a400
+  class n_backend_api,n_admin_panel critical
+  class n_mobile_app,n_file_storage,n_database,n_messaging high
+  class n_payment_gateway,n_shipping medium

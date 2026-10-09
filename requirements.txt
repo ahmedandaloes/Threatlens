@@ -1,0 +1,6 @@
+# Core (CLI + agent): only PyYAML is required. The LLM client uses the Python stdlib.
+PyYAML>=6.0
+# Web UI
+streamlit>=1.32
+# Tests
+pytest>=7.0

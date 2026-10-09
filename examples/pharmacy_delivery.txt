@@ -1,0 +1,9 @@
+Dawaa Express — pharmacy delivery app in Riyadh, Saudi Arabia.
+
+Customers order medicines through our Android and iOS mobile app (built with Flutter) and can upload a
+photo of their prescription. A Node.js backend API stores orders, customer names, phone numbers,
+delivery addresses and prescription images in PostgreSQL and an S3 bucket. Pharmacists review
+prescriptions in a web admin dashboard. Payments go through Moyasar (mada, Apple Pay, cards) and
+we send order updates and login OTP codes by SMS through Unifonic. Drivers are dispatched through
+a courier API. We are a team of 4 developers and host everything on AWS. We use Cloudflare in front
+of the API.

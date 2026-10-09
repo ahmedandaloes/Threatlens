@@ -1,0 +1,110 @@
+# Nile Threads — fashion e-commerce store (Egypt) with Paymob card/wallet and Fawry reference-code payments
+name: Nile Threads E-commerce Store
+description: >
+  D2C fashion brand selling across Egypt. Next.js storefront, Node.js/Express API, PostgreSQL,
+  Redis cart cache, Paymob (cards, Vodafone Cash wallets) and Fawry Pay (pay at kiosk) for
+  payments, Bosta for last-mile delivery, and an admin panel for the 4-person ops team.
+  Peak traffic during Ramadan and White Friday campaigns.
+industry: Retail / E-commerce
+region: Egypt
+users: "~120k customers, 8 staff"
+compliance:
+  - PCI DSS v4.0 (SAQ A-EP scope; card data entered on Paymob iframe)
+  - Egypt Personal Data Protection Law 151/2020
+  - Egypt Consumer Protection Law 181/2018
+global_controls: [tls, cdn, backups]
+
+components:
+  - {id: shopper, name: Shopper, type: user, zone: internet}
+  - {id: ops, name: Ops / Admin Staff, type: user, zone: internet}
+  - id: storefront
+    name: Storefront
+    type: web_frontend
+    tech: Next.js 14 on Vercel
+    data: [pii, credentials]
+    auth: jwt
+    internet_facing: true
+    controls: [tls, csp]
+  - id: api
+    name: Shop API
+    type: api
+    zone: dmz
+    tech: Node.js / Express on AWS EC2
+    data: [pii, payment, credentials]
+    auth: jwt
+    internet_facing: true
+    features: [file_upload, webhooks_out]
+    controls: [tls, logging, input_validation]
+  - id: admin
+    name: Admin Panel
+    type: admin_panel
+    tech: React-Admin
+    data: [pii, payment]
+    auth: password
+    internet_facing: true
+    zone: dmz
+    controls: [tls]
+  - id: worker
+    name: Order Fulfilment Worker
+    type: service
+    tech: Node.js worker
+    data: [pii]
+    auth: none
+  - id: pg
+    name: Orders DB
+    type: database
+    tech: Amazon RDS PostgreSQL
+    data: [pii, payment]
+    controls: [encryption_at_rest, backups]
+  - id: redis
+    name: Cart & Session Cache
+    type: cache
+    tech: ElastiCache Redis
+    data: [credentials, pii]
+    auth: none
+  - id: s3
+    name: Product & Return-Photos Bucket
+    type: object_storage
+    tech: Amazon S3
+    data: [pii]
+    controls: [encryption_at_rest]
+  - id: paymob
+    name: Paymob (cards & wallets)
+    type: third_party
+    category: payment
+    data: [payment, pii]
+    auth: api_key
+  - id: fawry
+    name: Fawry Pay
+    type: third_party
+    category: payment
+    data: [payment, pii]
+    auth: api_key
+  - id: bosta
+    name: Bosta Shipping API
+    type: third_party
+    category: shipping
+    data: [pii]
+    auth: api_key
+  - id: sms
+    name: SMS OTP Provider
+    type: third_party
+    category: messaging
+    data: [pii]
+    auth: api_key
+
+flows:
+  - {id: F01, from: shopper, to: storefront, protocol: https, data: [pii, credentials]}
+  - {id: F02, from: storefront, to: api, protocol: https, data: [pii, payment, credentials], auth: jwt}
+  - {id: F03, from: ops, to: admin, protocol: https, data: [pii, credentials]}
+  - {id: F04, from: admin, to: api, protocol: https, data: [pii, payment], auth: jwt}
+  - {id: F05, from: api, to: pg, protocol: tcp/tls, data: [pii, payment], auth: password}
+  - {id: F06, from: api, to: redis, protocol: tcp, data: [credentials, pii]}
+  - {id: F07, from: api, to: s3, protocol: https, data: [pii], auth: api_key}
+  - {id: F08, from: api, to: paymob, protocol: https, data: [payment, pii], auth: api_key, description: Create order & payment key}
+  - {id: F09, from: paymob, to: api, protocol: https, data: [payment], description: Transaction processed callback (HMAC available but not verified)}
+  - {id: F10, from: api, to: fawry, protocol: https, data: [payment, pii], auth: api_key, description: Create Fawry reference}
+  - {id: F11, from: fawry, to: api, protocol: https, data: [payment], description: Payment notification}
+  - {id: F12, from: api, to: worker, protocol: amqp, data: [pii], description: Order paid event}
+  - {id: F13, from: worker, to: bosta, protocol: https, data: [pii], auth: api_key, description: Create delivery}
+  - {id: F14, from: api, to: sms, protocol: https, data: [pii], auth: api_key, description: Login OTP}

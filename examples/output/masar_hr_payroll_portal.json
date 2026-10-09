@@ -1,0 +1,1709 @@
+{
+  "tool": "ThreatLens",
+  "version": "1.0.0",
+  "mode": "offline",
+  "summary": {
+    "system": "Masar HR & Payroll Portal",
+    "components": 13,
+    "flows": 13,
+    "endpoints": 0,
+    "boundary_crossings": 11,
+    "findings": 25,
+    "by_severity": {
+      "Critical": 1,
+      "High": 15,
+      "Medium": 9,
+      "Low": 0
+    },
+    "by_stride": {
+      "Spoofing": 8,
+      "Tampering": 5,
+      "Repudiation": 2,
+      "Information Disclosure": 8,
+      "Denial of Service": 1,
+      "Elevation of Privilege": 1
+    },
+    "owasp_categories": [
+      "A01:2021 Broken Access Control",
+      "A02:2021 Cryptographic Failures",
+      "A03:2021 Injection",
+      "A04:2021 Insecure Design",
+      "A06:2021 Vulnerable and Outdated Components",
+      "A07:2021 Identification and Authentication Failures",
+      "A08:2021 Software and Data Integrity Failures",
+      "A09:2021 Security Logging and Monitoring Failures"
+    ],
+    "unique_cwes": [
+      "CWE-89",
+      "CWE-209",
+      "CWE-250",
+      "CWE-287",
+      "CWE-306",
+      "CWE-307",
+      "CWE-308",
+      "CWE-319",
+      "CWE-345",
+      "CWE-352",
+      "CWE-359",
+      "CWE-434",
+      "CWE-494",
+      "CWE-532",
+      "CWE-613",
+      "CWE-639",
+      "CWE-770",
+      "CWE-778",
+      "CWE-798",
+      "CWE-862",
+      "CWE-1104"
+    ],
+    "remediation_actions": 19,
+    "effort_days": 34.5,
+    "effort_now_days": 19.0,
+    "mode": "offline"
+  },
+  "inventory": {
+    "assets": [
+      {
+        "id": "employee",
+        "name": "Employee",
+        "type": "user",
+        "zone": "internet",
+        "tech": "",
+        "data": [],
+        "sensitivity": 2,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "hr_staff",
+        "name": "HR / Finance Officer",
+        "type": "user",
+        "zone": "internet",
+        "tech": "",
+        "data": [],
+        "sensitivity": 2,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "portal",
+        "name": "Employee Self-Service Portal",
+        "type": "web_frontend",
+        "zone": "dmz",
+        "tech": "Angular",
+        "data": [
+          "pii",
+          "financial",
+          "credentials"
+        ],
+        "sensitivity": 5,
+        "internet_facing": true,
+        "auth": "session",
+        "controls": [
+          "tls",
+          "csp"
+        ]
+      },
+      {
+        "id": "api",
+        "name": "HR Core API",
+        "type": "api",
+        "zone": "dmz",
+        "tech": "ASP.NET Core 8",
+        "data": [
+          "pii",
+          "national_id",
+          "financial",
+          "credentials"
+        ],
+        "sensitivity": 5,
+        "internet_facing": true,
+        "auth": "jwt",
+        "controls": [
+          "tls",
+          "rbac",
+          "input_validation",
+          "audit_logging",
+          "logging"
+        ]
+      },
+      {
+        "id": "hr_admin",
+        "name": "HR Admin Console",
+        "type": "admin_panel",
+        "zone": "dmz",
+        "tech": "Angular",
+        "data": [
+          "pii",
+          "national_id",
+          "financial"
+        ],
+        "sensitivity": 4,
+        "internet_facing": true,
+        "auth": "sso",
+        "controls": [
+          "tls",
+          "mfa",
+          "csp"
+        ]
+      },
+      {
+        "id": "entra",
+        "name": "Microsoft Entra ID (SSO)",
+        "type": "identity_provider",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "credentials"
+        ],
+        "sensitivity": 5,
+        "internet_facing": false,
+        "auth": "oauth",
+        "controls": [
+          "mfa"
+        ]
+      },
+      {
+        "id": "payroll",
+        "name": "Payroll Engine",
+        "type": "service",
+        "zone": "internal",
+        "tech": ".NET worker",
+        "data": [
+          "financial",
+          "national_id",
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "sql",
+        "name": "HR Database",
+        "type": "database",
+        "zone": "data",
+        "tech": "Azure SQL",
+        "data": [
+          "pii",
+          "national_id",
+          "financial"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": [
+          "encryption_at_rest",
+          "backups"
+        ]
+      },
+      {
+        "id": "docs",
+        "name": "Employee Documents Blob",
+        "type": "object_storage",
+        "zone": "data",
+        "tech": "Azure Blob Storage",
+        "data": [
+          "national_id",
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": [
+          "encryption_at_rest",
+          "private_bucket"
+        ]
+      },
+      {
+        "id": "attendance",
+        "name": "Legacy Attendance Terminals",
+        "type": "service",
+        "zone": "internal",
+        "tech": "Biometric terminals (vendor API)",
+        "data": [
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "none",
+        "controls": []
+      },
+      {
+        "id": "bank_sftp",
+        "name": "Bank Payroll SFTP (WPS file)",
+        "type": "third_party",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "financial",
+          "national_id"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "api_key",
+        "controls": []
+      },
+      {
+        "id": "gov",
+        "name": "Government HR Platform Integration (e.g. Mudad / GOSI)",
+        "type": "third_party",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "pii",
+          "national_id",
+          "financial"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "api_key",
+        "controls": [
+          "dpa"
+        ]
+      },
+      {
+        "id": "email",
+        "name": "Transactional Email (SendGrid)",
+        "type": "third_party",
+        "zone": "third_party",
+        "tech": "",
+        "data": [
+          "pii"
+        ],
+        "sensitivity": 4,
+        "internet_facing": false,
+        "auth": "api_key",
+        "controls": [
+          "otp_limits"
+        ]
+      }
+    ],
+    "trust_zones": [
+      {
+        "zone": "internet",
+        "label": "Internet (untrusted)",
+        "members": [
+          "employee",
+          "hr_staff"
+        ]
+      },
+      {
+        "zone": "dmz",
+        "label": "DMZ / public edge",
+        "members": [
+          "portal",
+          "api",
+          "hr_admin"
+        ]
+      },
+      {
+        "zone": "internal",
+        "label": "Internal application zone",
+        "members": [
+          "payroll",
+          "attendance"
+        ]
+      },
+      {
+        "zone": "data",
+        "label": "Data zone",
+        "members": [
+          "sql",
+          "docs"
+        ]
+      },
+      {
+        "zone": "third_party",
+        "label": "Third-party providers",
+        "members": [
+          "entra",
+          "bank_sftp",
+          "gov",
+          "email"
+        ]
+      }
+    ],
+    "boundary_crossings": [
+      {
+        "flow": "F01",
+        "from": "employee",
+        "to": "portal",
+        "boundary": "internet -> dmz",
+        "protocol": "https",
+        "data": [
+          "pii",
+          "credentials"
+        ]
+      },
+      {
+        "flow": "F03",
+        "from": "hr_staff",
+        "to": "hr_admin",
+        "boundary": "internet -> dmz",
+        "protocol": "https",
+        "data": [
+          "pii",
+          "national_id",
+          "financial"
+        ]
+      },
+      {
+        "flow": "F04",
+        "from": "hr_admin",
+        "to": "entra",
+        "boundary": "dmz -> third_party",
+        "protocol": "https",
+        "data": [
+          "credentials"
+        ]
+      },
+      {
+        "flow": "F06",
+        "from": "api",
+        "to": "sql",
+        "boundary": "dmz -> data",
+        "protocol": "tcp/tls",
+        "data": [
+          "pii",
+          "national_id",
+          "financial"
+        ]
+      },
+      {
+        "flow": "F07",
+        "from": "api",
+        "to": "docs",
+        "boundary": "dmz -> data",
+        "protocol": "https",
+        "data": [
+          "national_id",
+          "pii"
+        ]
+      },
+      {
+        "flow": "F08",
+        "from": "api",
+        "to": "payroll",
+        "boundary": "dmz -> internal",
+        "protocol": "amqp",
+        "data": [
+          "financial",
+          "national_id"
+        ]
+      },
+      {
+        "flow": "F09",
+        "from": "payroll",
+        "to": "sql",
+        "boundary": "internal -> data",
+        "protocol": "tcp/tls",
+        "data": [
+          "financial"
+        ]
+      },
+      {
+        "flow": "F10",
+        "from": "payroll",
+        "to": "bank_sftp",
+        "boundary": "internal -> third_party",
+        "protocol": "sftp",
+        "data": [
+          "financial",
+          "national_id"
+        ]
+      },
+      {
+        "flow": "F11",
+        "from": "api",
+        "to": "gov",
+        "boundary": "dmz -> third_party",
+        "protocol": "https",
+        "data": [
+          "pii",
+          "national_id",
+          "financial"
+        ]
+      },
+      {
+        "flow": "F12",
+        "from": "attendance",
+        "to": "api",
+        "boundary": "internal -> dmz",
+        "protocol": "http",
+        "data": [
+          "pii"
+        ]
+      },
+      {
+        "flow": "F13",
+        "from": "api",
+        "to": "email",
+        "boundary": "dmz -> third_party",
+        "protocol": "https",
+        "data": [
+          "pii"
+        ]
+      }
+    ],
+    "crown_jewels": [
+      "sql",
+      "docs"
+    ],
+    "data_classes": [
+      "credentials",
+      "financial",
+      "national_id",
+      "pii"
+    ]
+  },
+  "findings": [
+    {
+      "id": "TL-001",
+      "rule_id": "I-03",
+      "title": "IDOR / Broken object-level authorization — HR Core API",
+      "stride": "I",
+      "target": "api",
+      "target_kind": "component",
+      "description": "HR Core API exposes records by ID (Personal data (PII), National ID / Iqama, Financial data, Credentials / tokens). If ownership is not checked server-side, changing an ID returns another customer's data.",
+      "cwe": [
+        "CWE-639",
+        "CWE-862"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V4.2 Operation Level Access Control"
+      ],
+      "likelihood": 5,
+      "impact": 5,
+      "risk": 25,
+      "severity": "Critical",
+      "mitigations": [
+        "object_level_authz"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-002",
+      "rule_id": "E-04",
+      "title": "Weak session / token lifecycle — HR Core API",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "component",
+      "description": "HR Core API uses jwt tokens; without expiry, rotation and server-side revocation a stolen token stays valid indefinitely.",
+      "cwe": [
+        "CWE-613"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V3.3 Session Termination",
+        "V3.5 Token-based Session Management"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "session_mgmt"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-003",
+      "rule_id": "S-01",
+      "title": "Account takeover via single-factor authentication — HR Core API",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "component",
+      "description": "HR Core API authenticates users with jwt only. Phished, reused or leaked passwords give an attacker full access to Personal data (PII), National ID / Iqama, Financial data, Credentials / tokens.",
+      "cwe": [
+        "CWE-308",
+        "CWE-287"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.1 Password Security",
+        "V2.8 One Time Verifier"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "mfa"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-004",
+      "rule_id": "S-01",
+      "title": "Account takeover via single-factor authentication — Employee Self-Service Portal",
+      "stride": "S",
+      "target": "portal",
+      "target_kind": "component",
+      "description": "Employee Self-Service Portal authenticates users with session only. Phished, reused or leaked passwords give an attacker full access to Personal data (PII), Financial data, Credentials / tokens.",
+      "cwe": [
+        "CWE-308",
+        "CWE-287"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.1 Password Security",
+        "V2.8 One Time Verifier"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "mfa"
+      ],
+      "evidence": "type=web_frontend, zone=dmz, auth=session, controls=['tls', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-005",
+      "rule_id": "S-02",
+      "title": "Credential stuffing / brute force on login and OTP — HR Core API",
+      "stride": "S",
+      "target": "api",
+      "target_kind": "component",
+      "description": "No rate limiting is documented for HR Core API. Automated credential-stuffing or OTP guessing can take over accounts.",
+      "cwe": [
+        "CWE-307"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.2 General Authenticator Security"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting",
+        "account_lockout"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-006",
+      "rule_id": "S-02",
+      "title": "Credential stuffing / brute force on login and OTP — Employee Self-Service Portal",
+      "stride": "S",
+      "target": "portal",
+      "target_kind": "component",
+      "description": "No rate limiting is documented for Employee Self-Service Portal. Automated credential-stuffing or OTP guessing can take over accounts.",
+      "cwe": [
+        "CWE-307"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V2.2 General Authenticator Security"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting",
+        "account_lockout"
+      ],
+      "evidence": "type=web_frontend, zone=dmz, auth=session, controls=['tls', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-007",
+      "rule_id": "T-05",
+      "title": "Cross-site request forgery on cookie-based session — Employee Self-Service Portal",
+      "stride": "T",
+      "target": "portal",
+      "target_kind": "component",
+      "description": "Employee Self-Service Portal uses cookie sessions; state-changing requests could be forged from another site.",
+      "cwe": [
+        "CWE-352"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V4.2 Operation Level Access Control",
+        "V3.4 Cookie-based Session Management"
+      ],
+      "likelihood": 4,
+      "impact": 4,
+      "risk": 16,
+      "severity": "High",
+      "mitigations": [
+        "csrf"
+      ],
+      "evidence": "type=web_frontend, zone=dmz, auth=session, controls=['tls', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-008",
+      "rule_id": "F-05",
+      "title": "Batch payment / payroll file tampering before upload — Payroll Engine → Bank Payroll SFTP (WPS file)",
+      "stride": "T",
+      "target": "F10",
+      "target_kind": "flow",
+      "description": "Flow Payroll Engine -> Bank Payroll SFTP (WPS file) transfers a SFTP file with Financial data, National ID / Iqama. Without a signature or checksum generated at source, an insider or compromised host can change IBANs or amounts before the bank / government platform processes it.",
+      "cwe": [
+        "CWE-345",
+        "CWE-494"
+      ],
+      "owasp_top10": [
+        "A08:2021 Software and Data Integrity Failures"
+      ],
+      "asvs": [
+        "V10.3 Application Integrity",
+        "V11.1 Business Logic Security"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "file_integrity"
+      ],
+      "evidence": "F10: sftp auth=api_key internal->third_party",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-009",
+      "rule_id": "T-03",
+      "title": "Malicious file upload — HR Core API",
+      "stride": "T",
+      "target": "api",
+      "target_kind": "component",
+      "description": "HR Core API accepts file uploads (e.g. documents, images, lab results). Unrestricted uploads enable web shells, malware hosting and stored XSS.",
+      "cwe": [
+        "CWE-434"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V12.1 File Upload",
+        "V12.2 File Integrity"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "secure_upload"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-010",
+      "rule_id": "SYS-01",
+      "title": "Secrets in source code / server env files",
+      "stride": "I",
+      "target": "system",
+      "target_kind": "system",
+      "description": "No secrets manager is documented. Payment-gateway keys, DB passwords and JWT signing keys tend to live in git or .env files.",
+      "cwe": [
+        "CWE-798"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V6.4 Secret Management",
+        "V14.1 Build and Deploy"
+      ],
+      "likelihood": 3,
+      "impact": 5,
+      "risk": 15,
+      "severity": "High",
+      "mitigations": [
+        "secrets_manager"
+      ],
+      "evidence": "global_controls=['tls', 'waf', 'backups', 'monitoring']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-011",
+      "rule_id": "F-02",
+      "title": "Unauthenticated call across a trust boundary — HR Core API → Payroll Engine",
+      "stride": "S",
+      "target": "F08",
+      "target_kind": "flow",
+      "description": "Flow HR Core API -> Payroll Engine crosses from 'dmz' to 'internal' without authentication.",
+      "cwe": [
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture",
+        "V13.1 Generic Web Service Security"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "service_auth"
+      ],
+      "evidence": "F08: amqp auth=none dmz->internal",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-012",
+      "rule_id": "S-05",
+      "title": "Unauthenticated access to internal service — Legacy Attendance Terminals",
+      "stride": "S",
+      "target": "attendance",
+      "target_kind": "component",
+      "description": "Legacy Attendance Terminals accepts connections without authentication. Any foothold in the network can call it directly.",
+      "cwe": [
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture",
+        "V9.2 Server Communication Security"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "service_auth"
+      ],
+      "evidence": "type=service, zone=internal, auth=none, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-013",
+      "rule_id": "S-05",
+      "title": "Unauthenticated access to internal service — Payroll Engine",
+      "stride": "S",
+      "target": "payroll",
+      "target_kind": "component",
+      "description": "Payroll Engine accepts connections without authentication. Any foothold in the network can call it directly.",
+      "cwe": [
+        "CWE-306"
+      ],
+      "owasp_top10": [
+        "A07:2021 Identification and Authentication Failures"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture",
+        "V9.2 Server Communication Security"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "service_auth"
+      ],
+      "evidence": "type=service, zone=internal, auth=none, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-014",
+      "rule_id": "SYS-03",
+      "title": "Vulnerable third-party libraries (no SCA)",
+      "stride": "T",
+      "target": "system",
+      "target_kind": "system",
+      "description": "No dependency scanning is documented for the custom code (npm/composer/pip/pub). Known-vulnerable packages are a common entry point.",
+      "cwe": [
+        "CWE-1104"
+      ],
+      "owasp_top10": [
+        "A06:2021 Vulnerable and Outdated Components"
+      ],
+      "asvs": [
+        "V14.2 Dependency"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "sca"
+      ],
+      "evidence": "global_controls=['tls', 'waf', 'backups', 'monitoring']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-015",
+      "rule_id": "F-01",
+      "title": "Sensitive data sent in cleartext — Legacy Attendance Terminals → HR Core API",
+      "stride": "I",
+      "target": "F12",
+      "target_kind": "flow",
+      "description": "Flow Legacy Attendance Terminals -> HR Core API uses HTTP and carries Personal data (PII). Anyone on the path (Wi-Fi, ISP, internal network) can read or modify it.",
+      "cwe": [
+        "CWE-319"
+      ],
+      "owasp_top10": [
+        "A02:2021 Cryptographic Failures"
+      ],
+      "asvs": [
+        "V9.1 Client Communication Security",
+        "V9.2 Server Communication Security"
+      ],
+      "likelihood": 3,
+      "impact": 4,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "tls"
+      ],
+      "evidence": "F12: http auth=none internal->dmz",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-016",
+      "rule_id": "D-01",
+      "title": "Resource exhaustion on public API — HR Core API",
+      "stride": "D",
+      "target": "api",
+      "target_kind": "component",
+      "description": "HR Core API is internet-facing without documented rate limits; scraping or floods can take the service down or inflate cloud bills.",
+      "cwe": [
+        "CWE-770"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V11.1 Business Logic Security",
+        "V13.1 Generic Web Service Security"
+      ],
+      "likelihood": 4,
+      "impact": 3,
+      "risk": 12,
+      "severity": "High",
+      "mitigations": [
+        "rate_limiting"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-017",
+      "rule_id": "R-02",
+      "title": "Sensitive logs leak data — HR Core API",
+      "stride": "R",
+      "target": "api",
+      "target_kind": "component",
+      "description": "HR Core API logs requests, but log redaction is not documented. Logs become a second, poorly-protected copy of Personal data (PII), National ID / Iqama, Financial data, Credentials / tokens.",
+      "cwe": [
+        "CWE-532"
+      ],
+      "owasp_top10": [
+        "A09:2021 Security Logging and Monitoring Failures"
+      ],
+      "asvs": [
+        "V7.1 Log Content"
+      ],
+      "likelihood": 2,
+      "impact": 5,
+      "risk": 10,
+      "severity": "Medium",
+      "mitigations": [
+        "log_redaction"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-018",
+      "rule_id": "R-01",
+      "title": "No audit trail for access to sensitive records — HR Admin Console",
+      "stride": "R",
+      "target": "hr_admin",
+      "target_kind": "component",
+      "description": "HR Admin Console processes Personal data (PII), National ID / Iqama, Financial data but no audit logging is documented. Insider misuse or a breach cannot be investigated or proven.",
+      "cwe": [
+        "CWE-778"
+      ],
+      "owasp_top10": [
+        "A09:2021 Security Logging and Monitoring Failures"
+      ],
+      "asvs": [
+        "V7.1 Log Content",
+        "V7.2 Log Processing"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "audit_logging"
+      ],
+      "evidence": "type=admin_panel, zone=dmz, auth=sso, controls=['tls', 'mfa', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-019",
+      "rule_id": "I-06",
+      "title": "Personal data shared with third party beyond need — Bank Payroll SFTP (WPS file)",
+      "stride": "I",
+      "target": "bank_sftp",
+      "target_kind": "component",
+      "description": "Bank Payroll SFTP (WPS file) receives Financial data, National ID / Iqama. Over-sharing with processors without a DPA creates privacy and regulatory exposure (Egypt PDPL / KSA PDPL).",
+      "cwe": [
+        "CWE-359"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V8.3 Sensitive Private Data"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "data_minimization"
+      ],
+      "evidence": "type=third_party, zone=third_party, auth=api_key, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-020",
+      "rule_id": "I-06",
+      "title": "Personal data shared with third party beyond need — Transactional Email (SendGrid)",
+      "stride": "I",
+      "target": "email",
+      "target_kind": "component",
+      "description": "Transactional Email (SendGrid) receives Personal data (PII). Over-sharing with processors without a DPA creates privacy and regulatory exposure (Egypt PDPL / KSA PDPL).",
+      "cwe": [
+        "CWE-359"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V8.3 Sensitive Private Data"
+      ],
+      "likelihood": 3,
+      "impact": 3,
+      "risk": 9,
+      "severity": "Medium",
+      "mitigations": [
+        "data_minimization"
+      ],
+      "evidence": "type=third_party, zone=third_party, auth=api_key, controls=['otp_limits']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-021",
+      "rule_id": "T-01",
+      "title": "SQL / NoSQL injection into backend data store — Payroll Engine",
+      "stride": "T",
+      "target": "payroll",
+      "target_kind": "component",
+      "description": "Payroll Engine builds queries against a data store and no input-validation / parameterization control is documented.",
+      "cwe": [
+        "CWE-89"
+      ],
+      "owasp_top10": [
+        "A03:2021 Injection"
+      ],
+      "asvs": [
+        "V5.3 Output Encoding and Injection Prevention"
+      ],
+      "likelihood": 2,
+      "impact": 4,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "parameterized_queries",
+        "input_validation"
+      ],
+      "evidence": "type=service, zone=internal, auth=none, controls=none documented",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-022",
+      "rule_id": "I-04",
+      "title": "Verbose errors / debug mode in production — HR Core API",
+      "stride": "I",
+      "target": "api",
+      "target_kind": "component",
+      "description": "HR Core API: stack traces and framework debug pages disclose internals and sometimes secrets.",
+      "cwe": [
+        "CWE-209"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V7.4 Error Handling"
+      ],
+      "likelihood": 4,
+      "impact": 2,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "error_handling"
+      ],
+      "evidence": "type=api, zone=dmz, auth=jwt, controls=['tls', 'rbac', 'input_validation', 'audit_logging', 'logging']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-023",
+      "rule_id": "I-04",
+      "title": "Verbose errors / debug mode in production — HR Admin Console",
+      "stride": "I",
+      "target": "hr_admin",
+      "target_kind": "component",
+      "description": "HR Admin Console: stack traces and framework debug pages disclose internals and sometimes secrets.",
+      "cwe": [
+        "CWE-209"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V7.4 Error Handling"
+      ],
+      "likelihood": 4,
+      "impact": 2,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "error_handling"
+      ],
+      "evidence": "type=admin_panel, zone=dmz, auth=sso, controls=['tls', 'mfa', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-024",
+      "rule_id": "I-04",
+      "title": "Verbose errors / debug mode in production — Employee Self-Service Portal",
+      "stride": "I",
+      "target": "portal",
+      "target_kind": "component",
+      "description": "Employee Self-Service Portal: stack traces and framework debug pages disclose internals and sometimes secrets.",
+      "cwe": [
+        "CWE-209"
+      ],
+      "owasp_top10": [
+        "A04:2021 Insecure Design"
+      ],
+      "asvs": [
+        "V7.4 Error Handling"
+      ],
+      "likelihood": 4,
+      "impact": 2,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "error_handling"
+      ],
+      "evidence": "type=web_frontend, zone=dmz, auth=session, controls=['tls', 'csp']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    },
+    {
+      "id": "TL-025",
+      "rule_id": "E-03",
+      "title": "Over-privileged database account — HR Database",
+      "stride": "E",
+      "target": "sql",
+      "target_kind": "component",
+      "description": "HR Database: applications typically connect with owner/DBA rights; any injection becomes full database compromise.",
+      "cwe": [
+        "CWE-250"
+      ],
+      "owasp_top10": [
+        "A01:2021 Broken Access Control"
+      ],
+      "asvs": [
+        "V1.4 Access Control Architecture"
+      ],
+      "likelihood": 2,
+      "impact": 4,
+      "risk": 8,
+      "severity": "Medium",
+      "mitigations": [
+        "least_privilege_db"
+      ],
+      "evidence": "type=database, zone=data, auth=none, controls=['encryption_at_rest', 'backups']",
+      "source": "kb",
+      "mapped": true,
+      "scored": true
+    }
+  ],
+  "remediation_plan": [
+    {
+      "key": "object_level_authz",
+      "title": "Object-level authorization on every record access (anti-IDOR/BOLA)",
+      "detail": "Central policy check that the caller owns / may access the record; use non-guessable IDs; add automated authz tests.",
+      "effort_days": 4.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 1,
+      "findings": [
+        "TL-001"
+      ],
+      "risk_reduced": 25
+    },
+    {
+      "key": "rate_limiting",
+      "title": "Rate limiting & anti-automation on auth/OTP/sensitive endpoints",
+      "detail": "Per-IP and per-account limits at the gateway (e.g. Nginx/Cloudflare) plus progressive delays and CAPTCHA after failures.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 2,
+      "findings": [
+        "TL-005",
+        "TL-006",
+        "TL-016"
+      ],
+      "risk_reduced": 44
+    },
+    {
+      "key": "account_lockout",
+      "title": "Account lockout & credential-stuffing detection",
+      "detail": "Temporary lockout, breached-password check (HIBP k-anonymity), alert on spikes of failed logins.",
+      "effort_days": 1.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 3,
+      "findings": [
+        "TL-005",
+        "TL-006"
+      ],
+      "risk_reduced": 32
+    },
+    {
+      "key": "mfa",
+      "title": "Enforce MFA for privileged and staff accounts",
+      "detail": "TOTP / passkeys for admin, doctor, finance and HR roles; SMS OTP only as fallback.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 4,
+      "findings": [
+        "TL-003",
+        "TL-004"
+      ],
+      "risk_reduced": 32
+    },
+    {
+      "key": "csrf",
+      "title": "CSRF protection for cookie sessions",
+      "detail": "SameSite=Lax/Strict cookies and anti-CSRF tokens on state-changing requests.",
+      "effort_days": 1.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 5,
+      "findings": [
+        "TL-007"
+      ],
+      "risk_reduced": 16
+    },
+    {
+      "key": "session_mgmt",
+      "title": "Harden session & token lifecycle",
+      "detail": "Short-lived access tokens, refresh token rotation, server-side revocation on logout / password change.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 6,
+      "findings": [
+        "TL-002"
+      ],
+      "risk_reduced": 16
+    },
+    {
+      "key": "file_integrity",
+      "title": "Sign / checksum payroll and payment batch files at source",
+      "detail": "Generate the WPS/bank file in one service, sign it (or HMAC + maker-checker approval), verify before upload, alert on IBAN changes.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 7,
+      "findings": [
+        "TL-008"
+      ],
+      "risk_reduced": 15
+    },
+    {
+      "key": "secure_upload",
+      "title": "Harden file uploads",
+      "detail": "Type/size allow-list, re-encode images, malware scan, store outside web root with random names, serve via signed URLs.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Now (0-2 weeks)",
+      "priority": 8,
+      "findings": [
+        "TL-009"
+      ],
+      "risk_reduced": 15
+    },
+    {
+      "key": "secrets_manager",
+      "title": "Move secrets to a secrets manager & rotate",
+      "detail": "Vault / AWS Secrets Manager / Doppler, no keys in git or .env on servers, secret scanning in CI.",
+      "effort_days": 2.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 9,
+      "findings": [
+        "TL-010"
+      ],
+      "risk_reduced": 15
+    },
+    {
+      "key": "sca",
+      "title": "Dependency scanning & patching cadence (SCA)",
+      "detail": "Dependabot/Renovate + OSV/Trivy in CI, monthly patch window.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 10,
+      "findings": [
+        "TL-014"
+      ],
+      "risk_reduced": 12
+    },
+    {
+      "key": "tls",
+      "title": "Encrypt all data in transit (TLS 1.2+)",
+      "detail": "HTTPS/SFTP/TLS everywhere incl. internal hops carrying sensitive data; HSTS on public sites.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Now (0-2 weeks)",
+      "priority": 11,
+      "findings": [
+        "TL-015"
+      ],
+      "risk_reduced": 12
+    },
+    {
+      "key": "service_auth",
+      "title": "Authenticate service-to-service traffic",
+      "detail": "mTLS or signed service tokens between internal services; network policies.",
+      "effort_days": 3.0,
+      "owner": "DevOps",
+      "phase": "Next (30 days)",
+      "priority": 12,
+      "findings": [
+        "TL-011",
+        "TL-012",
+        "TL-013"
+      ],
+      "risk_reduced": 36
+    },
+    {
+      "key": "log_redaction",
+      "title": "Redact sensitive fields from logs",
+      "detail": "Mask national IDs, card data, tokens and medical details in application and gateway logs.",
+      "effort_days": 1.0,
+      "owner": "Backend",
+      "phase": "Next (30 days)",
+      "priority": 13,
+      "findings": [
+        "TL-017"
+      ],
+      "risk_reduced": 10
+    },
+    {
+      "key": "error_handling",
+      "title": "Generic error responses, no stack traces in production",
+      "detail": "Global exception handler, debug mode off, correlation IDs instead of details.",
+      "effort_days": 0.5,
+      "owner": "Backend",
+      "phase": "Next (30 days)",
+      "priority": 14,
+      "findings": [
+        "TL-022",
+        "TL-023",
+        "TL-024"
+      ],
+      "risk_reduced": 24
+    },
+    {
+      "key": "least_privilege_db",
+      "title": "Least-privilege database accounts",
+      "detail": "Separate read/write accounts per service, no app access with DBA rights, no direct internet exposure.",
+      "effort_days": 1.0,
+      "owner": "DevOps",
+      "phase": "Next (30 days)",
+      "priority": 15,
+      "findings": [
+        "TL-025"
+      ],
+      "risk_reduced": 8
+    },
+    {
+      "key": "data_minimization",
+      "title": "Data minimization & DPA with third parties",
+      "detail": "Send only the fields the provider needs; sign a data-processing agreement (Egypt PDPL 151/2020, KSA PDPL).",
+      "effort_days": 2.0,
+      "owner": "Product/Legal",
+      "phase": "Later (90 days)",
+      "priority": 16,
+      "findings": [
+        "TL-019",
+        "TL-020"
+      ],
+      "risk_reduced": 18
+    },
+    {
+      "key": "audit_logging",
+      "title": "Tamper-evident audit log for sensitive actions",
+      "detail": "Log who/what/when for access to patient/employee/payment records and admin changes; ship to append-only storage.",
+      "effort_days": 3.0,
+      "owner": "Backend",
+      "phase": "Later (90 days)",
+      "priority": 17,
+      "findings": [
+        "TL-018"
+      ],
+      "risk_reduced": 9
+    },
+    {
+      "key": "parameterized_queries",
+      "title": "Parameterized queries / ORM-only data access",
+      "detail": "Ban string-built SQL, add SAST rule (Semgrep) in CI.",
+      "effort_days": 2.0,
+      "owner": "Backend",
+      "phase": "Later (90 days)",
+      "priority": 18,
+      "findings": [
+        "TL-021"
+      ],
+      "risk_reduced": 8
+    },
+    {
+      "key": "input_validation",
+      "title": "Schema-based input validation & allow-listed fields",
+      "detail": "Validate every request body against a schema (pydantic/Joi/FormRequest); block mass assignment with explicit DTOs.",
+      "effort_days": 3.0,
+      "owner": "Backend",
+      "phase": "Later (90 days)",
+      "priority": 19,
+      "findings": [
+        "TL-021"
+      ],
+      "risk_reduced": 8
+    }
+  ],
+  "diagram_mermaid": "flowchart LR\n  subgraph z_internet[\"Internet (untrusted)\"]\n    n_employee[\"👤 Employee\"]\n    n_hr_staff[\"👤 HR / Finance Officer\"]\n  end\n  subgraph z_dmz[\"DMZ / public edge\"]\n    n_portal(\"Employee Self-Service Portal<br/><small>Angular</small>\")\n    n_api(\"HR Core API<br/><small>ASP.NET Core 8</small>\")\n    n_hr_admin(\"HR Admin Console<br/><small>Angular</small>\")\n  end\n  subgraph z_internal[\"Internal application zone\"]\n    n_payroll(\"Payroll Engine<br/><small>.NET worker</small>\")\n    n_attendance(\"Legacy Attendance Terminals<br/><small>Biometric terminals (vendor API)</small>\")\n  end\n  subgraph z_data[\"Data zone\"]\n    n_sql[(\"HR Database<br/><small>Azure SQL</small>\")]\n    n_docs[(\"Employee Documents Blob<br/><small>Azure Blob Storage</small>\")]\n  end\n  subgraph z_third_party[\"Third-party providers\"]\n    n_entra{{\"Microsoft Entra ID (SSO)\"}}\n    n_bank_sftp{{\"Bank Payroll SFTP (WPS file)\"}}\n    n_gov{{\"Government HR Platform Integration (e.g. Mudad / GOSI)\"}}\n    n_email{{\"Transactional Email (SendGrid)\"}}\n  end\n  n_employee -->|\"F01 HTTPS · pii,credentials\"| n_portal\n  n_portal -->|\"F02 HTTPS · pii,financial\"| n_api\n  n_hr_staff -->|\"F03 HTTPS · pii,national_id,financial\"| n_hr_admin\n  n_hr_admin -->|\"F04 HTTPS · credentials\"| n_entra\n  n_hr_admin -->|\"F05 HTTPS · pii,national_id,financial\"| n_api\n  n_api -->|\"F06 TCP/TLS · pii,national_id,financial\"| n_sql\n  n_api -->|\"F07 HTTPS · national_id,pii\"| n_docs\n  n_api -->|\"F08 AMQP · financial,national_id\"| n_payroll\n  n_payroll -->|\"F09 TCP/TLS · financial\"| n_sql\n  n_payroll -->|\"F10 SFTP · financial,national_id\"| n_bank_sftp\n  n_api -->|\"F11 HTTPS · pii,national_id,financial\"| n_gov\n  n_attendance -.->|\"F12 HTTP · pii\"| n_api\n  n_api -->|\"F13 HTTPS · pii\"| n_email\n  classDef critical fill:#fde2e1,stroke:#c0392b,stroke-width:2px\n  classDef high fill:#fff1db,stroke:#e67e22,stroke-width:2px\n  classDef medium fill:#fffbe0,stroke:#c9a400\n  class n_api critical\n  class n_portal,n_bank_sftp,n_payroll,n_attendance high\n  class n_hr_admin,n_email,n_sql medium",
+  "reflections": [
+    {
+      "iteration": 1,
+      "gaps": [],
+      "notes": [
+        "Crown-jewel store 'docs' has no findings; confirm its controls with evidence.",
+        "No controls documented for: Payroll Engine, Legacy Attendance Terminals. Conservative assumptions were applied."
+      ],
+      "complete": true
+    }
+  ],
+  "trace": [
+    {
+      "step": 1,
+      "kind": "plan",
+      "thought": "Plan: parse input -> inventory assets & trust boundaries -> STRIDE per component -> data flows -> system checks -> map OWASP/ASVS/CWE -> score risk -> reflect & repair gaps -> remediation plan -> DFD -> report."
+    },
+    {
+      "step": 2,
+      "kind": "tool",
+      "tool": "parse_architecture",
+      "args": {},
+      "thought": "Normalise the input into components and flows.",
+      "actor": "planner",
+      "result": "{\"system\": \"Masar HR & Payroll Portal\", \"components\": 13, \"flows\": 13, \"endpoints\": 0, \"source\": \"yaml\", \"component_ids\": [\"employee\", \"hr_staff\", \"portal\", ...",
+      "ms": 0.2
+    },
+    {
+      "step": 3,
+      "kind": "tool",
+      "tool": "enumerate_components",
+      "args": {},
+      "thought": "Inventory assets, data classes and trust boundaries.",
+      "actor": "planner",
+      "result": "{\"assets\": 13, \"trust_zones\": [\"internet\", \"dmz\", \"internal\", \"data\", \"third_party\"], \"boundary_crossings\": 11, \"crown_jewels\": [\"sql\", \"docs\"]}",
+      "ms": 0.1
+    },
+    {
+      "step": 4,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "portal"
+      },
+      "thought": "Apply STRIDE to Employee Self-Service Portal (web_frontend).",
+      "actor": "planner",
+      "result": "{\"component\": \"portal\", \"new_findings\": [{\"id\": \"TMP-001\", \"stride\": \"S\", \"title\": \"Account takeover via single-factor authentication — Employee Self-Service...",
+      "ms": 0.1
+    },
+    {
+      "step": 5,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "api"
+      },
+      "thought": "Apply STRIDE to HR Core API (api).",
+      "actor": "planner",
+      "result": "{\"component\": \"api\", \"new_findings\": [{\"id\": \"TMP-005\", \"stride\": \"S\", \"title\": \"Account takeover via single-factor authentication — HR Core API\"}, {\"id\": \"T...",
+      "ms": 0.1
+    },
+    {
+      "step": 6,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "hr_admin"
+      },
+      "thought": "Apply STRIDE to HR Admin Console (admin_panel).",
+      "actor": "planner",
+      "result": "{\"component\": \"hr_admin\", \"new_findings\": [{\"id\": \"TMP-013\", \"stride\": \"R\", \"title\": \"No audit trail for access to sensitive records — HR Admin Console\"}, {\"...",
+      "ms": 0.0
+    },
+    {
+      "step": 7,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "entra"
+      },
+      "thought": "Apply STRIDE to Microsoft Entra ID (SSO) (identity_provider).",
+      "actor": "planner",
+      "result": "{\"component\": \"entra\", \"new_findings\": [], \"stride_covered\": []}",
+      "ms": 0.0
+    },
+    {
+      "step": 8,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "payroll"
+      },
+      "thought": "Apply STRIDE to Payroll Engine (service).",
+      "actor": "planner",
+      "result": "{\"component\": \"payroll\", \"new_findings\": [{\"id\": \"TMP-015\", \"stride\": \"S\", \"title\": \"Unauthenticated access to internal service — Payroll Engine\"}, {\"id\": \"T...",
+      "ms": 0.0
+    },
+    {
+      "step": 9,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "sql"
+      },
+      "thought": "Apply STRIDE to HR Database (database).",
+      "actor": "planner",
+      "result": "{\"component\": \"sql\", \"new_findings\": [{\"id\": \"TMP-017\", \"stride\": \"E\", \"title\": \"Over-privileged database account — HR Database\"}], \"stride_covered\": [\"E\"]}",
+      "ms": 0.0
+    },
+    {
+      "step": 10,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "docs"
+      },
+      "thought": "Apply STRIDE to Employee Documents Blob (object_storage).",
+      "actor": "planner",
+      "result": "{\"component\": \"docs\", \"new_findings\": [], \"stride_covered\": []}",
+      "ms": 0.0
+    },
+    {
+      "step": 11,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "attendance"
+      },
+      "thought": "Apply STRIDE to Legacy Attendance Terminals (service).",
+      "actor": "planner",
+      "result": "{\"component\": \"attendance\", \"new_findings\": [{\"id\": \"TMP-018\", \"stride\": \"S\", \"title\": \"Unauthenticated access to internal service — Legacy Attendance Termin...",
+      "ms": 0.0
+    },
+    {
+      "step": 12,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "bank_sftp"
+      },
+      "thought": "Apply STRIDE to Bank Payroll SFTP (WPS file) (third_party).",
+      "actor": "planner",
+      "result": "{\"component\": \"bank_sftp\", \"new_findings\": [{\"id\": \"TMP-019\", \"stride\": \"I\", \"title\": \"Personal data shared with third party beyond need — Bank Payroll SFTP ...",
+      "ms": 0.0
+    },
+    {
+      "step": 13,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "gov"
+      },
+      "thought": "Apply STRIDE to Government HR Platform Integration (e.g. Mudad / GOSI) (third_party).",
+      "actor": "planner",
+      "result": "{\"component\": \"gov\", \"new_findings\": [], \"stride_covered\": []}",
+      "ms": 0.0
+    },
+    {
+      "step": 14,
+      "kind": "tool",
+      "tool": "stride_analyze_component",
+      "args": {
+        "component_id": "email"
+      },
+      "thought": "Apply STRIDE to Transactional Email (SendGrid) (third_party).",
+      "actor": "planner",
+      "result": "{\"component\": \"email\", \"new_findings\": [{\"id\": \"TMP-020\", \"stride\": \"I\", \"title\": \"Personal data shared with third party beyond need — Transactional Email (S...",
+      "ms": 0.0
+    },
+    {
+      "step": 15,
+      "kind": "tool",
+      "tool": "analyze_data_flows",
+      "args": {},
+      "thought": "Check every data flow and boundary crossing.",
+      "actor": "planner",
+      "result": "{\"flows_checked\": 13, \"new_findings\": [{\"id\": \"TMP-021\", \"title\": \"Unauthenticated call across a trust boundary — HR Core API → Payroll Engine\"}, {\"id\": \"TMP...",
+      "ms": 0.1
+    },
+    {
+      "step": 16,
+      "kind": "tool",
+      "tool": "analyze_system",
+      "args": {},
+      "thought": "System-wide checks (secrets, monitoring, dependencies).",
+      "actor": "planner",
+      "result": "{\"new_findings\": [{\"id\": \"TMP-024\", \"title\": \"Secrets in source code / server env files\"}, {\"id\": \"TMP-025\", \"title\": \"Vulnerable third-party libraries (no S...",
+      "ms": 0.0
+    },
+    {
+      "step": 17,
+      "kind": "tool",
+      "tool": "map_to_owasp",
+      "args": {},
+      "thought": "Map findings to OWASP Top 10 / ASVS / CWE.",
+      "actor": "planner",
+      "result": "{\"mapped\": 25, \"total\": 25}",
+      "ms": 0.0
+    },
+    {
+      "step": 18,
+      "kind": "tool",
+      "tool": "score_risk",
+      "args": {},
+      "thought": "Score likelihood x impact.",
+      "actor": "planner",
+      "result": "{\"scored\": 25, \"by_severity\": {\"Critical\": 1, \"High\": 15, \"Medium\": 9, \"Low\": 0}, \"top\": [{\"id\": \"TL-001\", \"risk\": 25, \"title\": \"IDOR / Broken object-level a...",
+      "ms": 0.1
+    },
+    {
+      "step": 19,
+      "kind": "tool",
+      "tool": "reflect",
+      "args": {},
+      "thought": "Self-check coverage before writing the plan.",
+      "actor": "planner",
+      "result": "{\"iteration\": 1, \"gaps\": [], \"notes\": [\"Crown-jewel store 'docs' has no findings; confirm its controls with evidence.\", \"No controls documented for: Payroll ...",
+      "ms": 0.0
+    },
+    {
+      "step": 20,
+      "kind": "tool",
+      "tool": "build_remediation_plan",
+      "args": {},
+      "thought": "Prioritise fixes by risk reduced per effort-day.",
+      "actor": "planner",
+      "result": "{\"actions\": 19, \"effort_days_by_phase\": {\"Now (0-2 weeks)\": 19.0, \"Next (30 days)\": 5.5, \"Later (90 days)\": 10.0}, \"total_effort_days\": 34.5, \"first_actions\"...",
+      "ms": 0.1
+    },
+    {
+      "step": 21,
+      "kind": "tool",
+      "tool": "render_diagram",
+      "args": {},
+      "thought": "Draw the data-flow diagram with trust boundaries.",
+      "actor": "planner",
+      "result": "{\"lines\": 43, \"highlighted\": 9}",
+      "ms": 0.2
+    }
+  ]
+}

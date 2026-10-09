@@ -1,0 +1,43 @@
+flowchart LR
+  subgraph z_internet["Internet (untrusted)"]
+    n_employee["👤 Employee"]
+    n_hr_staff["👤 HR / Finance Officer"]
+  end
+  subgraph z_dmz["DMZ / public edge"]
+    n_portal("Employee Self-Service Portal<br/><small>Angular</small>")
+    n_api("HR Core API<br/><small>ASP.NET Core 8</small>")
+    n_hr_admin("HR Admin Console<br/><small>Angular</small>")
+  end
+  subgraph z_internal["Internal application zone"]
+    n_payroll("Payroll Engine<br/><small>.NET worker</small>")
+    n_attendance("Legacy Attendance Terminals<br/><small>Biometric terminals (vendor API)</small>")
+  end
+  subgraph z_data["Data zone"]
+    n_sql[("HR Database<br/><small>Azure SQL</small>")]
+    n_docs[("Employee Documents Blob<br/><small>Azure Blob Storage</small>")]
+  end
+  subgraph z_third_party["Third-party providers"]
+    n_entra{{"Microsoft Entra ID (SSO)"}}
+    n_bank_sftp{{"Bank Payroll SFTP (WPS file)"}}
+    n_gov{{"Government HR Platform Integration (e.g. Mudad / GOSI)"}}
+    n_email{{"Transactional Email (SendGrid)"}}
+  end
+  n_employee -->|"F01 HTTPS · pii,credentials"| n_portal
+  n_portal -->|"F02 HTTPS · pii,financial"| n_api
+  n_hr_staff -->|"F03 HTTPS · pii,national_id,financial"| n_hr_admin
+  n_hr_admin -->|"F04 HTTPS · credentials"| n_entra
+  n_hr_admin -->|"F05 HTTPS · pii,national_id,financial"| n_api
+  n_api -->|"F06 TCP/TLS · pii,national_id,financial"| n_sql
+  n_api -->|"F07 HTTPS · national_id,pii"| n_docs
+  n_api -->|"F08 AMQP · financial,national_id"| n_payroll
+  n_payroll -->|"F09 TCP/TLS · financial"| n_sql
+  n_payroll -->|"F10 SFTP · financial,national_id"| n_bank_sftp
+  n_api -->|"F11 HTTPS · pii,national_id,financial"| n_gov
+  n_attendance -.->|"F12 HTTP · pii"| n_api
+  n_api -->|"F13 HTTPS · pii"| n_email
+  classDef critical fill:#fde2e1,stroke:#c0392b,stroke-width:2px
+  classDef high fill:#fff1db,stroke:#e67e22,stroke-width:2px
+  classDef medium fill:#fffbe0,stroke:#c9a400
+  class n_api critical
+  class n_portal,n_bank_sftp,n_payroll,n_attendance high
+  class n_hr_admin,n_email,n_sql medium

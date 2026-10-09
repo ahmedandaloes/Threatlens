@@ -1,0 +1,245 @@
+{
+ "title": "ThreatLens — Impact",
+ "template": "pitch",
+ "palette": "carbon",
+ "typography": "rational-sans",
+ "brand": {
+  "name": "ThreatLens",
+  "site": "github.com/ahmedandaloes/threatlens"
+ },
+ "slides": [
+  {
+   "layout": "title",
+   "title": "ThreatLens",
+   "subtitle": "Threat modeling for SMEs in minutes",
+   "eyebrow": "Untap · Agents at Work",
+   "items": [
+    {
+     "heading": "Ahmed Alaa Eldin",
+     "body": "Principal Application Security Consultant"
+    }
+   ],
+   "notes": "ThreatLens is an AI threat-modeling agent. It takes an SME's app description (free text, architecture YAML/JSON, optional OpenAPI) and produces what an AppSec consultant delivers after a 3-5 day threat-modeling engagement: asset and data-flow inventory, STRIDE threat model mapped to OWASP Top 10 2021 / ASVS 4.0.3 / CWE, risk-scored findings, a prioritised remediation plan, a Mermaid DFD and Markdown/HTML/JSON reports. Source: README.md. License MIT."
+  },
+  {
+   "layout": "columns",
+   "title": "Who we built for",
+   "items": [
+    {
+     "heading": "Clinics",
+     "body": "Patient records and online booking. Health data (PHI) on the line."
+    },
+    {
+     "heading": "E-commerce",
+     "body": "Stores taking payments through Paymob and Fawry callbacks."
+    },
+    {
+     "heading": "HR portals",
+     "body": "Payroll, salaries and national IDs or Iqamas for Saudi staff."
+    }
+   ],
+   "notes": "Target users: SME founders/CTOs and 2-10 person dev teams in Egypt and Saudi Arabia without in-house security staff; freelance and agency developers building client apps; security consultants who want a first draft in seconds. Regulation increasingly expects a documented security design: Egypt PDPL 151/2020, KSA PDPL, PCI DSS, NCA ECC, SAMA (context, not legal advice). Source: README.md 'The problem' and 'Who it's for'."
+  },
+  {
+   "layout": "statement",
+   "title": "A threat model costs a week most SMEs never buy.",
+   "body": "3–5 consultant days. 1–3 weeks to schedule. Stale at the next release.",
+   "notes": "Manual engagement length 3-5 consultant-days and 7-21 day procurement/scheduling lead time are stated assumptions in docs/impact.md (author's consulting experience, not a market survey). Consequence described in README: SMEs ship IDORs, unsigned payment callbacks and internet-exposed admin panels."
+  },
+  {
+   "layout": "table",
+   "title": "The workflow replaced",
+   "columns": [
+    "Manual engagement step",
+    "ThreatLens tool"
+   ],
+   "rows": [
+    [
+     "Kick-off workshop and architecture intake",
+     "parse_architecture"
+    ],
+    [
+     "Draw the DFD and trust boundaries",
+     "enumerate_components · render_diagram"
+    ],
+    [
+     "STRIDE session per component and flow",
+     "stride · flows · API · system analysis"
+    ],
+    [
+     "Map to OWASP · ASVS · CWE and rate risk",
+     "map_to_owasp · score_risk"
+    ],
+    [
+     "Peer review for gaps",
+     "reflect (loops back to repair)"
+    ],
+    [
+     "Write the remediation roadmap and report",
+     "build_remediation_plan · render_report"
+    ]
+   ],
+   "notes": "Mapping taken from README.md 'Workflow it replaces'. Manual: 3-5 days. ThreatLens: minutes including a recommended 2-4 h human review. STRIDE row = stride_analyze_component, analyze_data_flows, analyze_api_endpoints, analyze_system."
+  },
+  {
+   "layout": "numbered",
+   "title": "How the agent works",
+   "items": [
+    {
+     "heading": "Plan",
+     "body": "An LLM via function calling or an offline policy picks the next tool."
+    },
+    {
+     "heading": "Act",
+     "body": "12 tools share one state backed by 42 STRIDE rules and 35 mitigations."
+    },
+    {
+     "heading": "Reflect",
+     "body": "A coverage self-check loops back and a guardrail completes any skipped step."
+    },
+    {
+     "heading": "Run anywhere",
+     "body": "Offline with no API key or any OpenAI-compatible LLM including Ollama Cloud."
+    }
+   ],
+   "notes": "Source: README.md Architecture and LLM mode sections; threatlens/tools.py TOOLS registry (12 tools: parse_architecture, enumerate_components, stride_analyze_component, analyze_data_flows, analyze_api_endpoints, analyze_system, map_to_owasp, score_risk, reflect, build_remediation_plan, render_diagram, render_report). LLM providers: Ollama Cloud (OLLAMA_API_KEY alias, default gpt-oss:120b at https://ollama.com/v1), OpenAI, OpenRouter, Groq, local Ollama. In LLM mode the model drives the loop, extracts architecture from free text, adds context-specific threats (tagged LLM-proposed) and writes the executive summary. Any LLM/network error falls back to offline mode. Risk = likelihood 1-5 x impact 1-5; Critical >= 20, High >= 12, Medium >= 6."
+  },
+  {
+   "layout": "metrics",
+   "title": "Demo: clinic booking",
+   "items": [
+    {
+     "value": "43",
+     "heading": "Findings across 11 components"
+    },
+    {
+     "value": "4/25",
+     "heading": "Critical / High (+14 Medium)"
+    },
+    {
+     "value": "9/10",
+     "heading": "OWASP Top 10 2021 categories"
+    },
+    {
+     "value": "6/6",
+     "heading": "STRIDE categories"
+    }
+   ],
+   "notes": "Example: Shifa Care Clinic Booking (Cairo/Alexandria), input examples/clinic_booking.yaml. Source: examples/output/shifa_care_clinic_booking.md executive summary and docs/impact.md. Top criticals (risk 25/25): forged Paymob webhook/callback to the Booking API (A08, CWE-345); internet-exposed admin panel without MFA (A07, CWE-308/306); IDOR on the Booking API (A01, CWE-639/862); plus payment amount tampering at 20/25 (A04). 18 'Now' actions ~28.5 dev-days; full plan 30 actions, 54 dev-days."
+  },
+  {
+   "layout": "metrics",
+   "title": "Measured impact",
+   "items": [
+    {
+     "value": "97%",
+     "heading": "Recall: 37 of 38 checklist threats"
+    },
+    {
+     "value": "83%+",
+     "heading": "Less expert time: 83–95% (estimate)"
+    },
+    {
+     "value": "≤$450",
+     "heading": "Per model vs $1,500–4,500 (estimate)"
+    }
+   ],
+   "notes": "Source: docs/impact.md, generated by python benchmarks/impact_benchmark.py --runs 20 (offline deterministic mode, median of 20 runs per example). Recall: 37/38 across the three benchmarked examples (clinic 14/14, e-commerce 14/14, HR 9/10; the miss was mass assignment of salary/role fields, suppressed because the API documents input validation). The checklist was written by the author before measuring and is NOT independent ground truth. Runtime: 3.8-17.9 ms median per example; LLM mode takes seconds to minutes. Time and cost figures are ESTIMATES; assumptions in docs/impact.md: manual engagement 3-5 consultant-days (24-40 h), day rate USD 500-900 (assumed, not a market survey), human review of ThreatLens output 2-4 h, offline API cost USD 0 (LLM mode adds provider token cost). Lead time: minutes vs 7-21 days (assumption). On-slide values are the conservative ends of the ranges: 83%+ = at least 83% (range 83-95%); <=$450 = USD 125-450 per model."
+  },
+  {
+   "layout": "table",
+   "title": "Results across four SMEs",
+   "columns": [
+    "Example",
+    "Input",
+    "Agent time",
+    "Findings",
+    "C / H / M",
+    "OWASP",
+    "Fix plan"
+   ],
+   "rows": [
+    [
+     "Shifa Care clinic",
+     "YAML",
+     "12.9 ms",
+     "43",
+     "4 / 25 / 14",
+     "9/10",
+     "54 dev-days"
+    ],
+    [
+     "Nile Threads store",
+     "YAML + OpenAPI",
+     "17.9 ms",
+     "43",
+     "10 / 22 / 11",
+     "10/10",
+     "43 dev-days"
+    ],
+    [
+     "Masar HR portal",
+     "JSON",
+     "3.8 ms",
+     "25",
+     "1 / 15 / 9",
+     "8/10",
+     "34.5 dev-days"
+    ],
+    [
+     "Dawaa pharmacy",
+     "Free text",
+     "n/a",
+     "33",
+     "4 / 18 / 11",
+     "8/10",
+     "49.5 dev-days"
+    ]
+   ],
+   "notes": "Sources: README.md 'Sample output' table, docs/impact.md per-example table, and the executive summaries in examples/output/*.md. Low findings: 0 in all four. All six STRIDE categories appear in each benchmarked example. Masar HR documents MFA via SSO, RBAC, audit logging, a WAF and monitoring, so ThreatLens reports fewer, lower-severity findings: documented controls suppress matching threats. Dawaa Express (Riyadh pharmacy delivery) was generated from a free-text paragraph only; it is not part of the recall benchmark. Agent time = median of 20 offline runs from docs/impact.md; Dawaa Express was not in the timing benchmark (n/a)."
+  },
+  {
+   "layout": "timeline",
+   "title": "Roadmap",
+   "items": [
+    {
+     "heading": "Shipped",
+     "body": "v1.0 offline agent with LLM mode and Streamlit UI. 12 offline tests"
+    },
+    {
+     "heading": "Next",
+     "body": "Requirement-level ASVS IDs and an independently reviewed benchmark"
+    },
+    {
+     "heading": "Then",
+     "body": "Run in CI on every architecture change with diffs between releases"
+    },
+    {
+     "heading": "Later",
+     "body": "Arabic reports and PDPL · NCA ECC evidence packs for auditors"
+    }
+   ],
+   "notes": "'Shipped' reflects the repo today (README.md: v1.0.0, offline KB, OpenAI-compatible LLM mode incl. Ollama Cloud, Streamlit app, 12 offline tests). The Next/Then/Later items are PROPOSED by the author and are not committed in the repo; they are drawn from the README Limitations section (ASVS references are section-level only; the expert checklist is author-written, not independent ground truth) and from the impact claim that a model can be re-run on every architecture change. Arabic reports and regulatory evidence packs are proposals; regulatory notes are context, not legal advice."
+  },
+  {
+   "layout": "closing",
+   "title": "Run it offline today",
+   "body": "github.com/ahmedandaloes/threatlens — run offline in 3 commands. No API key needed.",
+   "items": [
+    {
+     "heading": "1",
+     "body": "pip install -r requirements.txt"
+    },
+    {
+     "heading": "2",
+     "body": "python -m threatlens examples/clinic_booking.yaml"
+    },
+    {
+     "heading": "3",
+     "body": "Open the HTML report"
+    }
+   ],
+   "notes": "Quickstart from README.md: (1) pip install -r requirements.txt (Python 3.10+); (2) python -m threatlens examples/clinic_booking.yaml; (3) open threatlens_output/shifa_care_clinic_booking.html (Linux xdg-open, Windows start). Web UI: streamlit run app.py. Docker: docker build -t threatlens . && docker run -p 8501:8501 threatlens. Ask: try it on your own architecture and review the Now actions first."
+  }
+ ]
+}

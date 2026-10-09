@@ -1,0 +1,95 @@
+# Shifa Care — multi-branch clinic booking platform (Cairo & Alexandria, Egypt)
+name: Shifa Care Clinic Booking
+description: >
+  Appointment booking for a 6-branch outpatient clinic group. Patients book via a Flutter
+  mobile app or the website, pay the consultation fee online, and receive WhatsApp reminders.
+  Doctors view medical history and upload lab results; receptionists manage schedules in an
+  admin dashboard. Team: 3 developers, no dedicated security staff.
+industry: Healthcare
+region: Egypt (Cairo, Alexandria)
+users: "~40k patients, 60 doctors, 25 receptionists"
+compliance:
+  - Egypt Personal Data Protection Law 151/2020 (health data = sensitive data)
+  - PCI DSS v4.0 scope reduction via hosted payment page
+global_controls: [tls, backups]
+
+components:
+  - {id: patient, name: Patient, type: user, zone: internet}
+  - {id: staff, name: Doctor / Receptionist, type: user, zone: internet}
+  - id: mobile
+    name: Patient Mobile App
+    type: mobile_app
+    tech: Flutter (Android/iOS)
+    data: [pii, phi, credentials]
+    auth: password
+    controls: [tls]
+  - id: web
+    name: Patient Booking Website
+    type: web_frontend
+    tech: React SPA
+    data: [pii, phi, credentials]
+    auth: jwt
+    internet_facing: true
+    controls: [tls]
+  - id: api
+    name: Booking API
+    type: api
+    zone: dmz
+    tech: Laravel 10 (PHP) on a single VPS
+    data: [pii, phi, national_id, payment, credentials]
+    auth: jwt
+    internet_facing: true
+    features: [file_upload]
+    controls: [tls, logging, orm]
+  - id: admin
+    name: Clinic Admin Dashboard
+    type: admin_panel
+    tech: Laravel Blade
+    data: [pii, phi, national_id]
+    auth: session
+    internet_facing: true
+    zone: dmz
+    controls: [tls, csrf]
+  - id: db
+    name: Patients & Appointments DB
+    type: database
+    tech: MySQL 8 (same VPS)
+    data: [pii, phi, national_id]
+    controls: [backups]
+  - id: files
+    name: Lab Results Storage
+    type: object_storage
+    tech: DigitalOcean Spaces
+    data: [phi]
+  - id: redis
+    name: Session & Queue Cache
+    type: cache
+    tech: Redis
+    data: [credentials]
+    auth: none
+  - id: paymob
+    name: Paymob Payment Gateway
+    type: third_party
+    category: payment
+    data: [payment, pii]
+    auth: api_key
+  - id: whatsapp
+    name: WhatsApp Business API (via Twilio)
+    type: third_party
+    category: messaging
+    data: [pii, phi]
+    auth: api_key
+
+flows:
+  - {id: F01, from: patient, to: mobile, protocol: https, data: [pii, credentials]}
+  - {id: F02, from: patient, to: web, protocol: https, data: [pii, credentials]}
+  - {id: F03, from: mobile, to: api, protocol: https, data: [pii, phi, credentials], auth: jwt}
+  - {id: F04, from: web, to: api, protocol: https, data: [pii, phi, credentials], auth: jwt}
+  - {id: F05, from: staff, to: admin, protocol: https, data: [pii, phi, credentials], description: Staff login and patient lookup}
+  - {id: F06, from: admin, to: db, protocol: tcp, data: [pii, phi, national_id], auth: password, description: Dashboard queries DB directly}
+  - {id: F07, from: api, to: db, protocol: tcp, data: [pii, phi, national_id], auth: password}
+  - {id: F08, from: api, to: files, protocol: https, data: [phi], auth: api_key, description: Upload / fetch lab results}
+  - {id: F09, from: api, to: redis, protocol: tcp, data: [credentials]}
+  - {id: F10, from: api, to: paymob, protocol: https, data: [payment, pii], auth: api_key, description: Create payment intention}
+  - {id: F11, from: paymob, to: api, protocol: https, data: [payment], description: Transaction processed callback}
+  - {id: F12, from: api, to: whatsapp, protocol: https, data: [pii, phi], auth: api_key, description: Appointment reminders incl. doctor specialty}

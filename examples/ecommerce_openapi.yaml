@@ -1,0 +1,46 @@
+openapi: 3.0.3
+info:
+  title: Nile Threads Shop API
+  version: "2.3.0"
+  description: Public REST API used by the storefront and admin panel.
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer, bearerFormat: JWT}
+paths:
+  /auth/login:
+    post: {summary: Email/phone + password login}
+  /auth/otp/verify:
+    post: {summary: Verify SMS OTP}
+  /products:
+    get: {summary: List products}
+  /products/{productId}:
+    get: {summary: Product details}
+  /cart:
+    post: {summary: Add item to cart (client sends unit price), security: [{bearerAuth: []}]}
+  /orders:
+    post: {summary: Create order with totals, security: [{bearerAuth: []}]}
+  /orders/{orderId}:
+    get: {summary: Get order with address & phone, security: [{bearerAuth: []}]}
+  /orders/{orderId}/invoice:
+    get: {summary: Download invoice PDF}
+  /users/{userId}/addresses:
+    get: {summary: List saved addresses, security: [{bearerAuth: []}]}
+    put: {summary: Update address, security: [{bearerAuth: []}]}
+  /returns/{orderId}/photos:
+    post:
+      summary: Upload photos for a return request
+      security: [{bearerAuth: []}]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema: {type: object, properties: {file: {type: string, format: binary}}}
+  /payments/paymob/callback:
+    post: {summary: Paymob transaction processed callback}
+  /payments/fawry/notify:
+    post: {summary: Fawry payment notification}
+  /admin/products:
+    post: {summary: Create product, security: [{bearerAuth: []}]}
+  /admin/orders/{orderId}/refund:
+    post: {summary: Refund an order, security: [{bearerAuth: []}]}
+  /admin/export/customers:
+    get: {summary: Export all customers as CSV}

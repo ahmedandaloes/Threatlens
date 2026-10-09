@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph z_internet["Internet (untrusted)"]
+    n_patient["👤 Patient"]
+    n_staff["👤 Doctor / Receptionist"]
+  end
+  subgraph z_dmz["DMZ / public edge"]
+    n_mobile("Patient Mobile App<br/><small>Flutter (Android/iOS)</small>")
+    n_web("Patient Booking Website<br/><small>React SPA</small>")
+    n_api("Booking API<br/><small>Laravel 10 (PHP) on a single VPS</small>")
+    n_admin("Clinic Admin Dashboard<br/><small>Laravel Blade</small>")
+  end
+  subgraph z_data["Data zone"]
+    n_db[("Patients & Appointments DB<br/><small>MySQL 8 (same VPS)</small>")]
+    n_files[("Lab Results Storage<br/><small>DigitalOcean Spaces</small>")]
+    n_redis[("Session & Queue Cache<br/><small>Redis</small>")]
+  end
+  subgraph z_third_party["Third-party providers"]
+    n_paymob{{"Paymob Payment Gateway"}}
+    n_whatsapp{{"WhatsApp Business API (via Twilio)"}}
+  end
+  n_patient -->|"F01 HTTPS · pii,credentials"| n_mobile
+  n_patient -->|"F02 HTTPS · pii,credentials"| n_web
+  n_mobile -->|"F03 HTTPS · pii,phi,credentials"| n_api
+  n_web -->|"F04 HTTPS · pii,phi,credentials"| n_api
+  n_staff -->|"F05 HTTPS · pii,phi,credentials"| n_admin
+  n_admin -.->|"F06 TCP · pii,phi,national_id"| n_db
+  n_api -.->|"F07 TCP · pii,phi,national_id"| n_db
+  n_api -->|"F08 HTTPS · phi"| n_files
+  n_api -.->|"F09 TCP · credentials"| n_redis
+  n_api -->|"F10 HTTPS · payment,pii"| n_paymob
+  n_paymob -->|"F11 HTTPS · payment"| n_api
+  n_api -->|"F12 HTTPS · pii,phi"| n_whatsapp
+  classDef critical fill:#fde2e1,stroke:#c0392b,stroke-width:2px
+  classDef high fill:#fff1db,stroke:#e67e22,stroke-width:2px
+  classDef medium fill:#fffbe0,stroke:#c9a400
+  class n_api,n_admin critical
+  class n_mobile,n_web,n_redis,n_db,n_files,n_whatsapp high
+  class n_paymob medium

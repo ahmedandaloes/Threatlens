@@ -1,0 +1,21 @@
+[project]
+name = "threatlens"
+version = "1.0.0"
+description = "AI agent that threat-models SME applications: STRIDE + OWASP Top 10 / ASVS / CWE, risk scoring, remediation plan, Mermaid DFD."
+authors = [{ name = "Ahmed Alaa Eldin" }]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+ui = ["streamlit>=1.32"]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+threatlens = "threatlens.cli:main"
+
+[tool.setuptools]
+packages = ["threatlens"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

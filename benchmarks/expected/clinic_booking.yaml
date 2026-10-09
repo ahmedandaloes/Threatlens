@@ -1,0 +1,18 @@
+# Author-defined expert checklist (what a consultant would expect to see in the report).
+# A checklist item is "found" when any finding matches one of its CWEs (and the target, if given).
+system: clinic_booking.yaml
+items:
+  - {threat: "Forged Paymob payment callback marks booking as paid", cwe: [CWE-345]}
+  - {threat: "IDOR: patient reads another patient's records / lab results", cwe: [CWE-639], target: api}
+  - {threat: "Admin dashboard reachable from internet without MFA", cwe: [CWE-308], target: admin}
+  - {threat: "Credential stuffing / OTP brute force on patient login", cwe: [CWE-307]}
+  - {threat: "Lab results bucket publicly readable / guessable URLs", cwe: [CWE-732, CWE-200], target: files}
+  - {threat: "Malicious file upload (lab results)", cwe: [CWE-434]}
+  - {threat: "Unauthenticated Redis exposes sessions", cwe: [CWE-306, CWE-524], target: redis}
+  - {threat: "PHI shared with WhatsApp/Twilio beyond need (PDPL)", cwe: [CWE-359], target: whatsapp}
+  - {threat: "No audit trail of who viewed patient records", cwe: [CWE-778]}
+  - {threat: "Unencrypted patient DB at rest", cwe: [CWE-311, CWE-312], target: db}
+  - {threat: "Secrets (Paymob keys) in code or .env", cwe: [CWE-798]}
+  - {threat: "XSS in admin dashboard steals staff session", cwe: [CWE-79], target: admin}
+  - {threat: "WhatsApp/SMS pumping costs", cwe: [CWE-799]}
+  - {threat: "Booking fee amount tampering", cwe: [CWE-602]}

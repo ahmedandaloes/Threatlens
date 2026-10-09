@@ -1,0 +1,17 @@
+system: ecommerce_store.yaml
+openapi: ecommerce_openapi.yaml
+items:
+  - {threat: "Forged Paymob / Fawry payment notifications", cwe: [CWE-345]}
+  - {threat: "Client-side price / cart total tampering", cwe: [CWE-602]}
+  - {threat: "BOLA on /orders/{orderId} and /users/{userId}/addresses", cwe: [CWE-639]}
+  - {threat: "Unauthenticated admin customer export", cwe: [CWE-306]}
+  - {threat: "Admin panel takeover without MFA", cwe: [CWE-308], target: admin}
+  - {threat: "Return-photo upload abuse", cwe: [CWE-434]}
+  - {threat: "SMS OTP pumping (toll fraud)", cwe: [CWE-799]}
+  - {threat: "Unauthenticated Redis cart/session cache", cwe: [CWE-524, CWE-306], target: redis}
+  - {threat: "SSRF via outbound webhooks", cwe: [CWE-918]}
+  - {threat: "Credential stuffing on login", cwe: [CWE-307]}
+  - {threat: "Unauthenticated internal fulfilment worker", cwe: [CWE-306], target: worker}
+  - {threat: "Vulnerable npm dependencies", cwe: [CWE-1104]}
+  - {threat: "S3 bucket misconfiguration", cwe: [CWE-732, CWE-200], target: s3}
+  - {threat: "Lack of security monitoring for fraud", cwe: [CWE-778]}
