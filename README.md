@@ -227,6 +227,10 @@ A 2.5-minute narrated demo script (English + Arabic) is in [`docs/demo_script.md
 5. Switch to **free-text pharmacy** to show that a plain paragraph works too. Download the HTML report.
 6. The terminal shows `python -m threatlens …`, then `pytest`, then `docs/impact.md`.
 
+## About the examples
+
+All example organisations (Shifa Care, Nile Threads, Masar, Dawaa Express) are **fictional** and their architectures are invented for demonstration. Third-party names such as Paymob, Fawry, Moyasar, Unifonic, WhatsApp, GOSI and Mudad appear only as typical integrations; no finding describes a real vulnerability in those services or in any real company. Trademarks belong to their owners. No real personal data is included.
+
 ## Limitations
 
 - It is a **design-level** threat model, not a penetration test or code review. Critical and High items should be validated.

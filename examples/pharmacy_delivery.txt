@@ -1,3 +1,4 @@
+(Fictional example for demonstration only; not a real company or system.)
 Dawaa Express — pharmacy delivery app in Riyadh, Saudi Arabia.
 
 Customers order medicines through our Android and iOS mobile app (built with Flutter) and can upload a
